@@ -11,9 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoadingScreen(),
+      home: ifLoading(), // ifLoading 함수 호출
     );
   }
+}
+
+Widget ifLoading() {
+  return const LoadingScreen();
 }
 
 class LoadingScreen extends StatefulWidget {
@@ -30,7 +34,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    // 1초마다 이미지 상태를 반전시키는 타이머 설정
+    // 500ms마다 이미지 상태를 반전시키는 타이머 설정
     _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       setState(() {
         _isFlipped = !_isFlipped; // 상태 반전
@@ -58,16 +62,16 @@ class _LoadingScreenState extends State<LoadingScreen> {
               'assets/image/loading.png',
               width: screenWidth,
               height: screenHeight,
+              fit: BoxFit.cover,
             ),
           ),
-          // Other content here
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   '어너러너',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 25,
                     color: Colors.yellow,
                     fontFamily: 'dohyeon',

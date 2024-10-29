@@ -35,6 +35,12 @@ class temp_startPage extends StatelessWidget {
               },
               child: Text('랭킹'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/loading');
+              },
+              child: Text('로딩화면'),
+            ),
           ],
         ),
       ),
