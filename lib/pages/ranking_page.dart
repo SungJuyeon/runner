@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'navigationBar.dart';
 
 class ranking_page extends StatefulWidget {
   @override
@@ -62,7 +63,10 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
               ],
             ),
           ),
-          buildCurrentUserRankingTile(1, 'Juyean', 17),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6.0), // 위로 5픽셀 올리기
+            child: buildCurrentUserRankingTile(1, 'Juyean', 17),
+          ),
         ],
       ),
       bottomNavigationBar: buildBottomNavigationBar(), // BottomNavigationBar 네비게이션 바
@@ -177,39 +181,67 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
 
 
   Widget buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.star), // 랭킹 아이콘
-          label: '랭킹',
-        ),
-        BottomNavigationBarItem(
-          icon: Container(
-            height: 60,
-            width: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFF66A2FD),
-            ),
-            child: Icon(Icons.home, color: Colors.white), // 홈 아이콘
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        BottomAppBar(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              InkWell(
+                onTap: () => onRankingPressed(), // "랭킹" 버튼의 onTap 함수 호출
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.leaderboard),
+                    Text('랭킹'),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 48), // 홈 버튼 공간 확보
+              InkWell(
+                onTap: () => onProfilePressed(), // "마이" 버튼의 onTap 함수 호출
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.person),
+                    Text('마이'),
+                  ],
+                ),
+              ),
+            ],
           ),
-          label: '홈',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person), // 마이 아이콘
-          label: '마이',
+        Positioned(
+          bottom: 15, // 홈 버튼 원 위치 조정
+          child: InkWell(
+            onTap: () => onHomePressed(), // "홈" 버튼의 onTap 함수 호출
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF66A2FD),
+                shape: BoxShape.circle,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const[
+                  Icon(
+                    Icons.home,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                  Text(
+                    '홈',
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ],
-      currentIndex: 1, // 홈 버튼이 현재 선택된 상태로 표시
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
-      iconSize: 20,
-      onTap: (index) {
-        // 버튼 클릭 시의 동작 처리
-        setState(() {
-          // 선택된 인덱스에 따라 화면 전환 로직을 추가할 수 있습니다.
-        });
-      },
     );
   }
 
@@ -220,7 +252,7 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
         color: blueColor,
         borderRadius: BorderRadius.circular(10),
       ),
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 7),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
