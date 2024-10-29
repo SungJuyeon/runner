@@ -26,51 +26,49 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        textTheme: Theme.of(context).textTheme.apply(fontFamily: 'BMDOHYEON_ttf'),
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('랭킹', style: TextStyle(color: Colors.black)),
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          bottom: TabBar(
-            controller: _tabController,
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: blueColor,
-            tabs: [
-              Tab(text: '일일'),
-              Tab(text: '주간'),
-              Tab(text: '월간'),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('랭킹', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  buildRankingContent(),
-                  buildRankingContent(),
-                  buildRankingContent(),
-                ],
-              ),
-            ),
-            buildCurrentUserRankingTile(1, 'Juyean', 17),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: Colors.black,
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: blueColor,
+          tabs: [
+            Tab(text: '일일'),
+            Tab(text: '주간'),
+            Tab(text: '월간'),
           ],
         ),
-        bottomNavigationBar: buildBottomNavigationBar(),
       ),
+      body: Column(
+        children: [
+          // 탭 뷰와 랭킹 콘텐츠
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                buildRankingContent(), // 일일 랭킹 콘텐츠
+                buildRankingContent(), // 주간 랭킹 콘텐츠
+                buildRankingContent(), // 월간 랭킹 콘텐츠
+              ],
+            ),
+          ),
+          buildCurrentUserRankingTile(1, 'Juyean', 17),
+        ],
+      ),
+      bottomNavigationBar: buildBottomNavigationBar(), // BottomNavigationBar 네비게이션 바
+
     );
+
   }
 
 
