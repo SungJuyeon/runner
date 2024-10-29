@@ -34,21 +34,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 20.0),  //level 사각형 상하 여백
+        padding: const EdgeInsets.symmetric(vertical: 20.0),
         children: List.generate(totalLevels, (index) {
-          final levelNumber = index + 1; //현재 level
+          final levelNumber = index + 1;
           return Column(
             children: [
-              Align(  //정렬
-                alignment: Alignment.center,  //화면의 가운데 정렬
-                child: buildLevelContainer('level $levelNumber', isLocked: isLocked[index]), //레벨 컨테이너 생성
+              Align(
+                alignment: Alignment.center,
+                child: buildLevelContainer('level $levelNumber', isLocked: isLocked[index]),
               ),
-              const SizedBox(height: 20), // 레벨 간의 간격
+              const SizedBox(height: 20),
             ],
           );
         }),
       ),
-      bottomNavigationBar: buildBottomNavigationBar(),
+      bottomNavigationBar: buildBottomNavigationBar(
+        context,
+        onHomePressed,
+        onRankingPressed,
+        onProfilePressed,
+      ),
     );
   }
 
@@ -175,73 +180,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-  Widget buildBottomNavigationBar() {
-    return Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.none,
-      children: [
-        BottomAppBar(
-          child: SingleChildScrollView( // Add this
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.leaderboard),
-                      onPressed: () => onRankingPressed(context), // Navigate to Ranking
-                    ),
-                    const Text('랭킹'),
-                  ],
-                ),
-                const SizedBox(width: 48), // 홈 버튼 공간 확보
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.person),
-                      onPressed: () => onProfilePressed(context), // Navigate to Profile
-                    ),
-                    const Text('마이'),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
 
-        Positioned(
-          bottom: 15, // 홈 버튼 원 위치 조정
-          child: InkWell(
-            onTap: () => onHomePressed(context), // "홈" 버튼의 onTap 함수 호출
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: const Color(0xFF66A2FD),
-                shape: BoxShape.circle,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const[
-                  Icon(
-                    Icons.home,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                  Text(
-                    '홈',
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
 
   Widget notYetLevel(String levelText) {   // 잠긴 레벨 표시 위젯
