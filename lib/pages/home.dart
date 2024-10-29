@@ -45,7 +45,6 @@ class _HomePageState extends State<HomePage> {
         }),
       ),
       bottomNavigationBar: buildBottomNavigationBar(),
-
     );
   }
 
@@ -176,52 +175,78 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.leaderboard),
-                  Text('랭킹'),
-                ],
+              InkWell(
+                onTap: () => onRankingPressed(), // "랭킹" 버튼의 onTap 함수 호출
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.leaderboard),
+                    Text('랭킹'),
+                  ],
+                ),
               ),
               const SizedBox(width: 48), // 홈 버튼 공간 확보
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.person),
-                  Text('마이'),
-                ],
+              InkWell(
+                onTap: () => onProfilePressed(), // "마이" 버튼의 onTap 함수 호출
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.person),
+                    Text('마이'),
+                  ],
+                ),
               ),
             ],
           ),
         ),
         Positioned(
           bottom: 15, // 홈 버튼 원 위치 조정
-          child: Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: const Color(0xFF66A2FD),
-              shape: BoxShape.circle,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const[
-                Icon(
-                  Icons.home,
-                  color: Colors.white,
-                  size: 40,
-                ),
-                Text(
+          child: InkWell(
+            onTap: () => onHomePressed(), // "홈" 버튼의 onTap 함수 호출
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF66A2FD),
+                shape: BoxShape.circle,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const[
+                  Icon(
+                    Icons.home,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                  Text(
                     '홈',
-                    style: TextStyle(color: Colors.white, fontSize: 15,)
-                ),
-              ],
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ],
     );
   }
+
+// 각각의 버튼이 호출할 함수들
+  void onRankingPressed() {
+    // "랭킹" 버튼을 눌렀을 때 실행할 코드
+    print("랭킹 버튼이 눌렸습니다");
+  }
+
+  void onHomePressed() {
+    // "홈" 버튼을 눌렀을 때 실행할 코드
+    print("홈 버튼이 눌렸습니다");
+  }
+
+  void onProfilePressed() {
+    // "마이" 버튼을 눌렀을 때 실행할 코드
+    print("마이 버튼이 눌렸습니다");
+  }
+
 
   Widget notYetLevel(String levelText) {   // 잠긴 레벨 표시 위젯
     return Stack( // 스택으로 겹쳐서 표시
