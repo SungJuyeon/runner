@@ -1,15 +1,17 @@
-// 각각의 버튼이 호출할 함수들
-void onRankingPressed() {
-  // "랭킹" 버튼을 눌렀을 때 실행할 코드
-  print("랭킹 버튼이 눌렸습니다");
+// main.dart or any file where navigation functions are defined
+import 'package:flutter/material.dart';
+
+// Function to navigate to the Ranking page
+void onRankingPressed(BuildContext context) {
+  Navigator.pushNamed(context, '/ranking');
 }
 
-void onHomePressed() {
-  // "홈" 버튼을 눌렀을 때 실행할 코드
-  print("홈 버튼이 눌렸습니다");
+// Function to navigate to the Home page
+void onHomePressed(BuildContext context) {
+  Navigator.pushNamed(context, '/home');
 }
 
-void onProfilePressed() {
-  // "마이" 버튼을 눌렀을 때 실행할 코드
-  print("마이 버튼이 눌렸습니다");
+// Function to navigate to the Profile page
+void onProfilePressed(BuildContext context) {
+  Navigator.pushNamed(context, '/profile');
 }

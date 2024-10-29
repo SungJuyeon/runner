@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:runner/pages/quiz.dart';
+import 'package:runner/pages/wordView.dart';
 
 import 'navigationBar.dart';
 
@@ -104,57 +106,62 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF66A2FD),  // "문제 풀기" 버튼 색상
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Quiz(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF66A2FD),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(30),
+                          ),
                         ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '문제\n풀기',
-                          style: TextStyle(
-                            color: Color(0xFFF0EC7D), // 텍스트 색상
-                            fontSize: 13,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(0, 3),
-                                blurRadius: 4.0,
-                                color: Color.fromARGB(128, 0, 0, 0),
-                              ),
-                            ],
+                        child: const Center(
+                          child: Text(
+                            '문제\n풀기',
+                            style: TextStyle(
+                              color: Color(0xFFF0EC7D),
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                   Container(
-                    width: 2, // 구분선 너비
-                    color: Colors.white,  // 구분선 색상
-                    //color: const Color(0xFFF0EC7D),
+                    width: 2,
+                    color: Colors.white,
                   ),
                   Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF66A2FD), //"단어 보기" 버튼 색상
-                        borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(30),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WordView(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF66A2FD),
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(30),
+                          ),
                         ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '단어\n보기',
-                          style: TextStyle(
-                            color: Color(0xFFF0EC7D),
-                            fontSize: 13,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(0, 3),
-                                blurRadius: 4.0,
-                                color: Color.fromARGB(128, 0, 0, 0),
-                              ),
-                            ],
+                        child: const Center(
+                          child: Text(
+                            '단어\n보기',
+                            style: TextStyle(
+                              color: Color(0xFFF0EC7D),
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ),
@@ -174,37 +181,40 @@ class _HomePageState extends State<HomePage> {
       clipBehavior: Clip.none,
       children: [
         BottomAppBar(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              InkWell(
-                onTap: () => onRankingPressed(), // "랭킹" 버튼의 onTap 함수 호출
-                child: Column(
+          child: SingleChildScrollView( // Add this
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.leaderboard),
-                    Text('랭킹'),
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.leaderboard),
+                      onPressed: () => onRankingPressed(context), // Navigate to Ranking
+                    ),
+                    const Text('랭킹'),
                   ],
                 ),
-              ),
-              const SizedBox(width: 48), // 홈 버튼 공간 확보
-              InkWell(
-                onTap: () => onProfilePressed(), // "마이" 버튼의 onTap 함수 호출
-                child: Column(
+                const SizedBox(width: 48), // 홈 버튼 공간 확보
+                Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.person),
-                    Text('마이'),
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.person),
+                      onPressed: () => onProfilePressed(context), // Navigate to Profile
+                    ),
+                    const Text('마이'),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+
         Positioned(
           bottom: 15, // 홈 버튼 원 위치 조정
           child: InkWell(
-            onTap: () => onHomePressed(), // "홈" 버튼의 onTap 함수 호출
+            onTap: () => onHomePressed(context), // "홈" 버튼의 onTap 함수 호출
             child: Container(
               width: 80,
               height: 80,
