@@ -53,6 +53,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
+    - assets/
     - assets/image/loading.png
     - assets/image/learnerBear.png
     - assets/image/learnerBrown.png

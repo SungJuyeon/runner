@@ -84,11 +84,11 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                buildHighRanker(2, 'Yujin', 'assets/1.png', 15, yellowColor),
+                buildHighRanker(2, 'Yujin', 'assets/image/learnerBear.png', 15, yellowColor),
                 SizedBox(width: 20),//간격
-                buildHighRanker(1, 'Juyeon', 'assets/2.png', 17, yellowColor),
+                buildHighRanker(1, 'Juyeon', 'assets/image/learnerBrown.png', 17, yellowColor),
                 SizedBox(width: 20),//간격
-                buildHighRanker(3, 'Hajin', 'assets/3.png', 14, yellowColor),
+                buildHighRanker(3, 'Hajin', 'assets/image/learnerRabbit.png', 14, yellowColor),
               ],
             ),
             SizedBox(height: 20),
