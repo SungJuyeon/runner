@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-=======
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.runner">
->>>>>>> cyj
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
         android:label="runner"

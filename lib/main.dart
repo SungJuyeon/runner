@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:runner/pages/login.dart';
 import 'package:runner/pages/profile.dart';
+import 'package:runner/pages/signup.dart';
 import 'pages/quiz.dart';
 import 'pages/wordView.dart';
 import 'pages/temp_startPage.dart';
@@ -31,6 +33,8 @@ class MyApp extends StatelessWidget {
         '/quiz': (context) => Quiz(),            // Add Quiz route
         '/wordView': (context) => WordView(),
         '/profile': (context) => Profile(),
+        '/login' : (context) => LoginScreen(),
+        '/signup' : (context) => SignUpScreen(),
       },
     );
   }

@@ -1,10 +1,7 @@
 # runner
 
-<<<<<<< HEAD
-language runner
-=======
 A new Flutter project.
->>>>>>> cyj
+
 
 ## Getting Started
 
