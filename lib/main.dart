@@ -7,6 +7,7 @@ import 'pages/ranking_page.dart';
 import 'pages/home.dart';
 import 'pages/loading.dart';
 
+
 void main() {
   runApp(MyApp());
 }
@@ -34,3 +35,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

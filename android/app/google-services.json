@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "872255766559",
+    "project_id": "runner-fcaf6",
+    "storage_bucket": "runner-fcaf6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:872255766559:android:265e93be07a2440579d52a",
+        "android_client_info": {
+          "package_name": "com.example.runner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbh0LG8hLU-piGhnUMQ3IetQ7ItrVtBeg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
