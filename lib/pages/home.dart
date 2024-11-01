@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
               boxShadow: [  // 그림자 효과
                 BoxShadow(
                   color: Colors.black.withOpacity(0.5),
-                  offset: Offset(0, 4),
+                  offset: Offset(0, 2),
                   blurRadius: 8,
                   spreadRadius: 0,
                 )
@@ -149,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const WordView(),
+                            builder: (context) => WordView(title: '단어장',level: 1),
                           ),
                         );
                       },
