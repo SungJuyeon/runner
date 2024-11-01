@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:runner/pages/login.dart';
 import 'package:runner/pages/profile.dart';
+import 'package:runner/pages/signup.dart';
 import 'pages/quiz.dart';
 import 'pages/wordView.dart';
 import 'pages/temp_startPage.dart';
 import 'pages/ranking_page.dart';
 import 'pages/home.dart';
 import 'pages/loading.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -30,7 +33,10 @@ class MyApp extends StatelessWidget {
         '/quiz': (context) => Quiz(),            // Add Quiz route
         '/wordView': (context) => WordView(title: "단어장",level: 1),
         '/profile': (context) => Profile(),
+        '/login' : (context) => LoginScreen(),
+        '/signup' : (context) => SignUpScreen(),
       },
     );
   }
 }
+

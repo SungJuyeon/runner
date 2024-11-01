@@ -25,6 +25,7 @@ migration:
       create_revision: 2663184aa79047d0a33a14a3b607954f8fdd8730
       base_revision: 2663184aa79047d0a33a14a3b607954f8fdd8730
 
+
   # User provided section
 
   # List of Local paths (relative to this file) that should be
