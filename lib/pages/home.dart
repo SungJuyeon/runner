@@ -133,6 +133,13 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(
                               color: Color(0xFFF0EC7D),
                               fontSize: 13,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(0, 5),
+                                  blurRadius: 4.0,
+                                  color: Color.fromARGB(128, 0, 0, 0),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -166,6 +173,13 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(
                               color: Color(0xFFF0EC7D),
                               fontSize: 13,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(0, 5),
+                                  blurRadius: 4.0,
+                                  color: Color.fromARGB(128, 0, 0, 0),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -281,7 +295,7 @@ class _HomePageState extends State<HomePage> {
           width: 200,
           height: 120,
           decoration: BoxDecoration(
-            color: const Color(0xBB3C3F43), // 80%투명도로 덮기
+            color: const Color(0xBB3C3F43),
             borderRadius: BorderRadius.circular(30),
           ),
           child: const Center(

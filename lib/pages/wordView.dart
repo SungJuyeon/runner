@@ -7,7 +7,7 @@ import 'navigationBar.dart';
 
 class WordView extends StatefulWidget {
   final String title;
-  final int level; // 레벨 추가
+  final int level;
 
   WordView({super.key, required this.title, required this.level});
 
@@ -25,18 +25,19 @@ class _WordViewState extends State<WordView> {
   }
 
   Future<void> _loadWordsFromCsv() async {
-    // 레벨에 따라 다른 CSV 파일 로드
     final String content = await rootBundle.loadString('../assets/wordBook/wordsBook${widget.level}.csv');
     final rows = const CsvToListConverter().convert(content);
 
     for (var row in rows) {
-      if (row.length >= 2) {
-        String wordbookName = row[0].toString(); // 첫 번째 열
-        String additionalInfo = row[1].toString(); // 두 번째 열
-        wordbook.add(WordList(wordbookName, additionalInfo)); // 추가 정보와 함께 추가
+      if (row.length >= 4) { // Ensure row has enough columns
+        String wordbookName = row[0].toString();
+        String additionalInfo = row[1].toString();
+        String sentenceEng = row[2].toString();
+        String sentenceKor = row[4].toString();
+        wordbook.add(WordList(wordbookName, additionalInfo, sentenceEng, sentenceKor));
       }
     }
-    setState(() {}); // 상태 업데이트
+    setState(() {});
   }
 
   @override
@@ -50,16 +51,14 @@ class _WordViewState extends State<WordView> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Color(0xFF66A2FD), // 파란색 배경
-                borderRadius: BorderRadius.circular(40), // 둥근 모서리
+                color: Color(0xFF66A2FD),
+                borderRadius: BorderRadius.circular(40),
               ),
               child: Text(
                 'Level ${widget.level}',
                 style: TextStyle(color: Colors.white),
               ),
             ),
-
-
           ],
         ),
       ),
@@ -84,21 +83,26 @@ class _WordViewState extends State<WordView> {
             activeColor: Color(0xFFF0EC7D),
             onChanged: (bool? value) {
               setState(() {
-                wordbook[index].isChecked = value ?? false; // Update the checked state
+                wordbook[index].isChecked = value ?? false;
               });
             },
           ),
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(wordbook[index].wordbookName),
-              Text(
-                wordbook[index].additionalInfo,
-                //style: TextStyle(color: Colors.grey[600]), // Optional styling for the meaning
-              ),
+              Text(wordbook[index].additionalInfo),
             ],
           ),
-          tileColor: wordbook[index].isChecked ? Color(0xFFF0EC7D) : null, // 체크 시 배경색 변경
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WordListPage(wordList: wordbook[index]),
+              ),
+            );
+          },
+          tileColor: wordbook[index].isChecked ? Color(0xFFF0EC7D) : null,
         );
       },
     );
@@ -108,7 +112,43 @@ class _WordViewState extends State<WordView> {
 class WordList {
   String wordbookName;
   String additionalInfo;
+  String sentenceEng;
+  String sentenceKor;
   bool isChecked;
 
-  WordList(this.wordbookName, this.additionalInfo, {this.isChecked = false});
+  WordList(this.wordbookName, this.additionalInfo, this.sentenceEng, this.sentenceKor, {this.isChecked = false});
+}
+
+class WordListPage extends StatelessWidget {
+  final WordList wordList;
+
+  WordListPage({Key? key, required this.wordList}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(wordList.wordbookName),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(13),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                wordList.sentenceEng, // English sentence
+                style: TextStyle(fontSize: 30),
+              ),
+              SizedBox(height: 100),
+              Text(
+                wordList.sentenceKor, // Korean translation
+                style: TextStyle(fontSize: 20, color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

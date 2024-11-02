@@ -32,6 +32,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^2.16.0
+  flutter_local_notifications: ^13.0.0  #푸시 알림 기능
 
 
 

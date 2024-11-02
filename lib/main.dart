@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:runner/pages/login.dart';
-import 'package:runner/pages/profile.dart';
+import 'package:runner/pages/myPage.dart';
 import 'package:runner/pages/signup.dart';
 import 'pages/quiz.dart';
 import 'pages/wordView.dart';
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         '/loading': (context) => ifLoading(),
         '/quiz': (context) => Quiz(),            // Add Quiz route
         '/wordView': (context) => WordView(title: "단어장",level: 1),
-        '/profile': (context) => Profile(),
+        '/myPage': (context) => myPage(),
         '/login' : (context) => LoginScreen(),
         '/signup' : (context) => SignUpScreen(),
       },

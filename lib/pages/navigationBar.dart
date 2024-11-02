@@ -81,5 +81,5 @@ void onHomePressed(BuildContext context) {
 
 // Function to navigate to the Profile page
 void onProfilePressed(BuildContext context) {
-  Navigator.pushNamed(context, '/profile');
+  Navigator.pushNamed(context, '/myPage');
 }
