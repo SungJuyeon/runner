@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 
 import 'navigationBar.dart';
-import 'notification.dart';
 
 class myPage extends StatefulWidget {
   const myPage({Key? key}) : super(key: key);
@@ -13,12 +12,10 @@ class myPage extends StatefulWidget {
 
 class _MyPageState extends State<myPage> {
   bool isPushNotificationEnabled = false; // 푸시 알림 설정 스위치 상태
-  late NotificationService _notificationService;
 
   @override
   void initState() {
     super.initState();
-    _notificationService = NotificationService(); // 알림 서비스 초기화
   }
 
   @override
@@ -82,7 +79,7 @@ class _MyPageState extends State<myPage> {
                   onChanged: (value) {
                     setState(() {
                       isPushNotificationEnabled = value;
-                      //_notificationService.scheduleNotification(isPushNotificationEnabled); // 알림 스케줄 설정
+
                     });
                   },
                 ),

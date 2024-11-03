@@ -40,11 +40,8 @@ class Quizstate extends State<Quiz> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue[100],
-      appBar: AppBar(
-        title: const Text('문제 풀기'),
-        backgroundColor: Colors.lightBlue,
-      ),
+      backgroundColor: Color(0xFF7EB3FF),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -73,7 +70,7 @@ class Quizstate extends State<Quiz> {
             Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.yellow[100],
+                color: Color(0xFFFAE67B),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -116,10 +113,14 @@ class Quizstate extends State<Quiz> {
             ElevatedButton(
               onPressed: checkAnswer,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
+                backgroundColor: Color(0xFFFAE67B),
                 padding: EdgeInsets.symmetric(vertical: 16),
               ),
-              child: Text('정답 확인', style: TextStyle(fontSize: 18)),
+              child: Text('정답 확인',
+                  style: TextStyle(fontSize: 18,
+                    color: Colors.black,
+                  )
+              ),
             ),
 
             // 정답 결과 표시
@@ -130,9 +131,16 @@ class Quizstate extends State<Quiz> {
                   isCorrect ? '정답입니다!' : '오답입니다. 정답은 "$correctAnswer"입니다.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 20,
-                    color: isCorrect ? Colors.green : Colors.red,
+                    fontSize: 25,
+                    color: isCorrect ? Color(0xFFFDDB14) : Color(0xFFFF3C2B),
                     fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(0, 2),
+                        blurRadius: 2.0,
+                        color: Color.fromARGB(128, 0, 0, 0), // 텍스트 그림자 설정
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -142,10 +150,15 @@ class Quizstate extends State<Quiz> {
               ElevatedButton(
                 onPressed: nextQuestion,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Color(0xFFFAE67B),
                   padding: EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text('다음 문제', style: TextStyle(fontSize: 18)),
+                child: Text('다음 문제',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                    )
+                ),
               ),
           ],
         ),

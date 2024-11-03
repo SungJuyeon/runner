@@ -25,7 +25,7 @@ class _WordViewState extends State<WordView> {
   }
 
   Future<void> _loadWordsFromCsv() async {
-    final String content = await rootBundle.loadString('../assets/wordBook/wordsBook${widget.level}.csv');
+    final String content = await rootBundle.loadString('assets/wordBook/wordsBook${widget.level}.csv');
     final rows = const CsvToListConverter().convert(content);
 
     for (var row in rows) {
