@@ -4,7 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
 
 import 'navigationBar.dart';
-
+//합쳐져라
 class WordView extends StatefulWidget {
   final String title;
   final int level;
