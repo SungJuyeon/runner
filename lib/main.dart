@@ -8,10 +8,8 @@ import 'pages/temp_startPage.dart';
 import 'pages/ranking_page.dart';
 import 'pages/home.dart';
 import 'pages/loading.dart';
-import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
-  tz.initializeTimeZones();
   runApp(MyApp());
 }
 
