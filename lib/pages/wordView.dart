@@ -25,9 +25,12 @@ class _WordViewState extends State<WordView> {
   }
 
   Future<void> _loadWordsFromCsv() async {
+    wordbook.clear(); // 이전 데이터 제거
     // 레벨에 따라 다른 CSV 파일 로드
-    final String content = await rootBundle.loadString('../assets/wordBook/wordsBook${widget.level}.csv');
-    final rows = const CsvToListConverter().convert(content);
+    final String content = await rootBundle.loadString('assets/wordBook/wordsBook${widget.level}.csv');
+    //print("CSV content: $content"); // 읽은 CSV 내용 출력
+    final rows = const CsvToListConverter(eol: '\n').convert(content);
+    //print("Number of rows: ${rows.length}");
 
     for (var row in rows) {
       if (row.length >= 2) {
@@ -36,6 +39,8 @@ class _WordViewState extends State<WordView> {
         wordbook.add(WordList(wordbookName, additionalInfo)); // 추가 정보와 함께 추가
       }
     }
+    print("Loaded words count: ${wordbook.length}");
+
     setState(() {}); // 상태 업데이트
   }
 
@@ -63,7 +68,7 @@ class _WordViewState extends State<WordView> {
           ],
         ),
       ),
-      body: Center(child: wordBookView(context)),
+      body: wordBookView(context),
       bottomNavigationBar: buildBottomNavigationBar(
         context,
         onHomePressed,
@@ -74,33 +79,54 @@ class _WordViewState extends State<WordView> {
   }
 
   Widget wordBookView(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: wordbook.length,
-      itemBuilder: (BuildContext context, int index) {
-        return ListTile(
-          leading: Checkbox(
-            value: wordbook[index].isChecked,
-            activeColor: Color(0xFFF0EC7D),
-            onChanged: (bool? value) {
-              setState(() {
-                wordbook[index].isChecked = value ?? false; // Update the checked state
-              });
-            },
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items
-            children: [
-              Text(wordbook[index].wordbookName),
-              Text(
-                wordbook[index].additionalInfo,
-                //style: TextStyle(color: Colors.grey[600]), // Optional styling for the meaning
-              ),
-            ],
-          ),
-          tileColor: wordbook[index].isChecked ? Color(0xFFF0EC7D) : null, // 체크 시 배경색 변경
-        );
-      },
+    return Expanded(
+      child: ListView.builder(
+        padding: const EdgeInsets.all(8),
+        itemCount: wordbook.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items
+                  children: [
+                    Container(width: 100, child: Text(wordbook[index].wordbookName)),
+                    SizedBox(width: 16), // 체크박스와 텍스트 사이의 간격을 설정
+                    Container(
+                      width: 100,
+                      child: Text(
+                        wordbook[index].additionalInfo,
+                        textAlign: TextAlign.left,
+                        //style: TextStyle(color: Colors.grey[600]), // Optional styling for the meaning
+                      ),
+                    ),
+                    Checkbox(
+                      value: wordbook[index].isChecked,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50), // 동그란 모양으로 설정
+                      ),
+                      activeColor: Color(0xFFffd400),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          wordbook[index].isChecked = value ?? false; // Update the checked state
+                        });
+                      },
+                    ),
+                  ],
+
+                ),
+                Divider(
+                  color: Colors.black, // 구분선 색상
+                  thickness: 1, // 구분선 두께
+                  height: 1, // 구분선과 항목 사이의 간격 조정
+                ),
+              ],
+            ),
+            //trailing:
+            //tileColor: wordbook[index].isChecked ? Color(0xFFF0EC7D) : null, // 체크 시 배경색 변경
+          );
+        },
+      ),
     );
   }
 }
