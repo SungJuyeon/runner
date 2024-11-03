@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.runner"
+    namespace "com.example.runner"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
