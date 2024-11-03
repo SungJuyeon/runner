@@ -4,7 +4,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF66A2FD), // 배경색 설정
+      backgroundColor: Color(0xFF67A4FB), // 배경색 설정
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 1, // '홈' 탭 선택
         items: [
@@ -44,10 +44,11 @@ class LoginScreen extends StatelessWidget {
                 Container(
                   width: 100, // 레이블 크기 고정
                   child: Text(
-                    '아이디',
+                    ' 아이디',
                     style: TextStyle(
-                      color: Colors.yellow,
+                      color: Color(0xFFF0EC7D),
                       fontWeight: FontWeight.bold,
+                      fontSize: 25,
                     ),
                   ),
                 ),
@@ -75,8 +76,9 @@ class LoginScreen extends StatelessWidget {
                   child: Text(
                     '비밀번호',
                     style: TextStyle(
-                      color: Colors.yellow,
+                      color: Color(0xFFF0EC7D),
                       fontWeight: FontWeight.bold,
+                      fontSize: 25,
                     ),
                   ),
                 ),
@@ -102,31 +104,35 @@ class LoginScreen extends StatelessWidget {
                 // 로그인 로직 처리
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.yellow, // 배경 색
+                backgroundColor: Color(0xFFF0EC7D), // 배경 색
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0), // 버튼 둥글게
                   side: BorderSide.none,  // 테두리 제거
                 ),
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
               ),
               child: Text(
-                '로그인',
-                style: TextStyle(color: Colors.black),
+                '    로그인    ',
+                style: TextStyle(color: Color(0xFF306DFB), fontSize: 22),
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 20),
             TextButton(
               onPressed: () {
                 // 회원가입 화면으로 이동
                 Navigator.pushNamed(context, '/signup');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.yellow, // 배경 색
+                backgroundColor: Color(0xFFF0EC7D), // 배경 색
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0), // 버튼 둥글게
                   side: BorderSide.none, // 테두리 제거
                 ),
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
               ),
-              child: Text('회원가입'),
+              child: Text('   회원가입   ',
+                style: TextStyle(color: Colors.black, fontSize: 22),
+              ),
             ),
           ],
         ),

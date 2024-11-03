@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 20.0),
+        padding: const EdgeInsets.only(top: 50.0),
         children: List.generate(totalLevels, (index) {
           final levelNumber = index + 1;
           return Column(
@@ -61,8 +61,8 @@ class _HomePageState extends State<HomePage> {
     return isLocked // 레벨이 잠겨있다면
         ? notYetLevel(levelText) // 잠금 레벨 표시
         : Container( // 레벨이 잠겨있지 않다면
-      width: 200,
-      height: 120,
+      width: 300,
+      height: 180,
       decoration: BoxDecoration(
         color: const Color(0xFF66A2FD), // 배경 색상
         borderRadius: BorderRadius.circular(30),  // 둥근 모서리
@@ -85,13 +85,13 @@ class _HomePageState extends State<HomePage> {
                 topRight: Radius.circular(30),
               ),
             ),
-            height: 65,
+            height: 85,
             child: Center(
               child: Text(
                 levelText,  // 레벨 텍스트
                 style: const TextStyle(
                   color: Color(0xFFF0EC7D),
-                  fontSize: 23,
+                  fontSize: 35,
                   shadows: [
                     Shadow(
                       offset: Offset(0, 5),
@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                           '문제\n풀기',
                           style: TextStyle(
                             color: Color(0xFFF0EC7D),
-                            fontSize: 13,
+                            fontSize: 22,
                             shadows: [
                               Shadow(
                                 offset: Offset(0, 5),
@@ -172,7 +172,7 @@ class _HomePageState extends State<HomePage> {
                           '단어\n보기',
                           style: TextStyle(
                             color: Color(0xFFF0EC7D),
-                            fontSize: 13,
+                            fontSize: 22,
                             shadows: [
                               Shadow(
                                 offset: Offset(0, 5),
@@ -201,8 +201,8 @@ class _HomePageState extends State<HomePage> {
     return Stack( // 스택으로 겹쳐서 표시
       children: [
         Container(
-          width: 200,
-          height: 120,
+          width: 300,
+          height: 180,
           decoration: BoxDecoration(
             color: const Color(0xFF66A2FD),
             borderRadius: BorderRadius.circular(30),
@@ -225,13 +225,13 @@ class _HomePageState extends State<HomePage> {
                     topRight: Radius.circular(30),
                   ),
                 ),
-                height: 65,
+                height: 85,
                 child: Center(
                   child: Text(
                     levelText,
                     style: const TextStyle(
                       color: Color(0xFFF0EC7D),
-                      fontSize: 23,
+                      fontSize: 35,
                     ),
                   ),
                 ),
@@ -256,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                             '문제\n풀기',
                             style: TextStyle(
                               color: Color(0xFFF0EC7D),
-                              fontSize: 13,
+                              fontSize: 22,
                             ),
                           ),
                         ),
@@ -279,7 +279,7 @@ class _HomePageState extends State<HomePage> {
                             '단어\n보기',
                             style: TextStyle(
                               color: Color(0xFFF0EC7D),
-                              fontSize: 13,
+                              fontSize: 22,
                             ),
                           ),
                         ),
@@ -292,8 +292,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Container(
-          width: 200,
-          height: 120,
+          width: 300,
+          height: 180,
           decoration: BoxDecoration(
             color: const Color(0xBB3C3F43),
             borderRadius: BorderRadius.circular(30),
