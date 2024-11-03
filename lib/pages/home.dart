@@ -175,14 +175,11 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 13,
                               shadows: [
                                 Shadow(
-                                  offset: Offset(0, 5),
                                   blurRadius: 4.0,
                                   color: Color.fromARGB(128, 0, 0, 0),
                                 ),
                               ],
                             ),
-                          ),
-                        ),
                       ),
                     ),
                   ),
