@@ -57,9 +57,9 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
             child: TabBarView(
               controller: _tabController,
               children: [
-                buildRankingContent(), // 일일 랭킹 콘텐츠
-                buildRankingContent(), // 주간 랭킹 콘텐츠
-                buildRankingContent(), // 월간 랭킹 콘텐츠
+                buildRankingContent('일일'), // 일일 랭킹 콘텐츠
+                buildRankingContent('주간'), // 주간 랭킹 콘텐츠
+                buildRankingContent('월간'), // 월간 랭킹 콘텐츠
               ],
             ),
           ),
@@ -77,8 +77,8 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
 
 
   // 상위랭커, 일반 랭크 둘다 내용 채우기
-  Widget buildRankingContent() {
-    return Stack( // Stack으로 변경
+  Widget buildRankingContent(String tabName) {
+    return Stack(
       children: [
         Column(
           children: [
@@ -86,11 +86,11 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                buildHighRanker(2, 'Yujin', 'assets/image/learnerBear.png', 15, yellowColor),
-                SizedBox(width: 20),//간격
-                buildHighRanker(1, 'Juyeon', 'assets/image/learnerBrown.png', 17, yellowColor),
-                SizedBox(width: 20),//간격
-                buildHighRanker(3, 'Hajin', 'assets/image/learnerRabbit.png', 14, yellowColor),
+                buildHighRanker(2, 'Yujin', 'assets/image/learnerBear.png', 15, yellowColor, tabName),
+                SizedBox(width: 20), // 간격
+                buildHighRanker(1, 'Juyeon', 'assets/image/learnerBrown.png', 17, yellowColor, tabName),
+                SizedBox(width: 20), // 간격
+                buildHighRanker(3, 'Hajin', 'assets/image/learnerRabbit.png', 14, yellowColor, tabName),
               ],
             ),
             SizedBox(height: 20),
@@ -111,11 +111,11 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
     );
   }
 
-  Widget buildHighRanker(int rank, String name, String assetPath, int score, Color bgColor) {
-    // rank에 따라 크기 설정
-    double avatarRadius = 30; // 모든 순위의 원 크기
-    double textSize = 20; // 모든 순위의 텍스트 크기
+  Widget buildHighRanker(int rank, String name, String assetPath, int score, Color bgColor, String tabName) {
+    double avatarRadius = 30;
+    double textSize = 20;
     double imageSize;
+
     // 이미지 크기를 rank에 따라 설정
     if (rank == 1) {
       imageSize = 130; // 1등의 이미지 크기
