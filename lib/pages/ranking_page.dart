@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:runner/pages/makingImage.dart';
 
 class ranking_page extends StatefulWidget {
   @override
@@ -11,6 +12,9 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
   // 색상 정의
   final Color yellowColor = Color(0xFFEEEB96);
   final Color blueColor = Color(0xFF66A2FD);
+  // 탭 이름 배열
+  final List<String> tabNames = ['일일', '주간', '월간'];
+
 
   @override
   void initState() {
@@ -217,7 +221,21 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
 
   // 현재 사용자 등수 타일
   Widget buildCurrentUserRankingTile(int rank, String name, int score) {
-    return Container(
+    return InkWell(
+        onTap: () {
+      // 클릭 시 새로운 페이지로 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MakingImage(
+            rank: rank,
+            name: name,
+            tabName: getCurrentTabName(),
+          ),
+        ),
+      );
+    },
+    child: Container(
       decoration: BoxDecoration(
         color: blueColor,
         borderRadius: BorderRadius.circular(10),
@@ -240,7 +258,13 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
           ),
         ],
       ),
+    ),
     );
+  }
+
+  // 현재 탭의 이름 반환
+  String getCurrentTabName() {
+    return tabNames[_tabController.index]; // Get tab name by index
   }
 
 }
