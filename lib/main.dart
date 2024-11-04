@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => temp_startPage(),
-        '/ranking': (context) => ranking_page(),
+        '/ranking': (context) => RankingPage(),
         '/home': (context) => HomePage(),
         '/loading': (context) => ifLoading(),
         '/quiz': (context) => Quiz(),            // Add Quiz route
