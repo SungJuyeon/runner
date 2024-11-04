@@ -8,9 +8,16 @@ import 'pages/temp_startPage.dart';
 import 'pages/ranking_page.dart';
 import 'pages/home.dart';
 import 'pages/loading.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 
-void main() {
+void main() async {
+  //firebase 초기화(로그인, 회원가입 기능)
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -32,7 +39,7 @@ class MyApp extends StatelessWidget {
         '/loading': (context) => ifLoading(),
         '/quiz': (context) => Quiz(),            // Add Quiz route
         '/wordView': (context) => WordView(),
-        '/profile': (context) => Profile(),
+        '/profile': (context) => myPage(),
         '/login' : (context) => LoginScreen(),
         '/signup' : (context) => SignUpScreen(),
       },
