@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 20.0),
+        padding: const EdgeInsets.only(top: 50.0),
         children: List.generate(totalLevels, (index) {
           final levelNumber = index + 1;
           return Column(
@@ -61,124 +61,138 @@ class _HomePageState extends State<HomePage> {
     return isLocked // 레벨이 잠겨있다면
         ? notYetLevel(levelText) // 잠금 레벨 표시
         : Container( // 레벨이 잠겨있지 않다면
-            width: 200,
-            height: 120,
+      width: 300,
+      height: 180,
+      decoration: BoxDecoration(
+        color: const Color(0xFF66A2FD), // 배경 색상
+        borderRadius: BorderRadius.circular(30),  // 둥근 모서리
+        boxShadow: [  // 그림자 효과
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            offset: Offset(0, 2),
+            blurRadius: 8,
+            spreadRadius: 0,
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF66A2FD), // 배경 색상
-              borderRadius: BorderRadius.circular(30),  // 둥근 모서리
-              boxShadow: [  // 그림자 효과
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
-                  offset: Offset(0, 4),
-                  blurRadius: 8,
-                  spreadRadius: 0,
-                )
+              color: const Color(0xFF66A2FD), //level 써있는 버튼 색상
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+            ),
+            height: 85,
+            child: Center(
+              child: Text(
+                levelText,  // 레벨 텍스트
+                style: const TextStyle(
+                  color: Color(0xFFF0EC7D),
+                  fontSize: 35,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(0, 5),
+                      blurRadius: 4.0,
+                      color: Color.fromARGB(128, 0, 0, 0),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Container(
+            height: 1.5,  // 구분선 높이
+            color: Colors.white,  // 구분선 색상
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Quiz(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF66A2FD),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                        ),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '문제\n풀기',
+                          style: TextStyle(
+                            color: Color(0xFFF0EC7D),
+                            fontSize: 22,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 3),
+                                blurRadius: 4.0,
+                                color: Color.fromARGB(128, 0, 0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 2,
+                  color: Colors.white,
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WordView(title: '단어장',level: 1),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF66A2FD),
+                        borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(30),
+                        ),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '단어\n보기',
+                          style: TextStyle(
+                            color: Color(0xFFF0EC7D),
+                            fontSize: 22,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 3),
+                                blurRadius: 4.0,
+                                color: Color.fromARGB(128, 0, 0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF66A2FD), //level 써있는 버튼 색상
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-              ),
-              height: 65,
-              child: Center(
-                child: Text(
-                  levelText,  // 레벨 텍스트
-                  style: const TextStyle(
-                    color: Color(0xFFF0EC7D),
-                    fontSize: 23,
-                    shadows: [
-                      Shadow(
-                        offset: Offset(0, 5),
-                        blurRadius: 4.0,
-                        color: Color.fromARGB(128, 0, 0, 0),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              height: 1.5,  // 구분선 높이
-              color: Colors.white,  // 구분선 색상
-            ),
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Quiz(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF66A2FD),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(30),
-                          ),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '문제\n풀기',
-                            style: TextStyle(
-                              color: Color(0xFFF0EC7D),
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 2,
-                    color: Colors.white,
-                  ),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const WordView(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF66A2FD),
-                          borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(30),
-                          ),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '단어\n보기',
-                            style: TextStyle(
-                              color: Color(0xFFF0EC7D),
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+          ),
+        ],
+      ),
+    );
+  }
 
 
 
@@ -187,8 +201,8 @@ class _HomePageState extends State<HomePage> {
     return Stack( // 스택으로 겹쳐서 표시
       children: [
         Container(
-          width: 200,
-          height: 120,
+          width: 300,
+          height: 180,
           decoration: BoxDecoration(
             color: const Color(0xFF66A2FD),
             borderRadius: BorderRadius.circular(30),
@@ -211,13 +225,13 @@ class _HomePageState extends State<HomePage> {
                     topRight: Radius.circular(30),
                   ),
                 ),
-                height: 65,
+                height: 85,
                 child: Center(
                   child: Text(
                     levelText,
                     style: const TextStyle(
                       color: Color(0xFFF0EC7D),
-                      fontSize: 23,
+                      fontSize: 35,
                     ),
                   ),
                 ),
@@ -242,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                             '문제\n풀기',
                             style: TextStyle(
                               color: Color(0xFFF0EC7D),
-                              fontSize: 13,
+                              fontSize: 22,
                             ),
                           ),
                         ),
@@ -265,7 +279,7 @@ class _HomePageState extends State<HomePage> {
                             '단어\n보기',
                             style: TextStyle(
                               color: Color(0xFFF0EC7D),
-                              fontSize: 13,
+                              fontSize: 22,
                             ),
                           ),
                         ),
@@ -278,10 +292,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Container(
-          width: 200,
-          height: 120,
+          width: 300,
+          height: 180,
           decoration: BoxDecoration(
-            color: const Color(0xBB3C3F43), // 80%투명도로 덮기
+            color: const Color(0xBB3C3F43),
             borderRadius: BorderRadius.circular(30),
           ),
           child: const Center(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:runner/pages/login.dart';
-import 'package:runner/pages/profile.dart';
+import 'package:runner/pages/myPage.dart';
 import 'package:runner/pages/signup.dart';
 import 'pages/quiz.dart';
 import 'pages/wordView.dart';
@@ -10,7 +10,6 @@ import 'pages/home.dart';
 import 'pages/loading.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
 
 void main() async {
   //firebase 초기화(로그인, 회원가입 기능)
@@ -38,12 +37,11 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/loading': (context) => ifLoading(),
         '/quiz': (context) => Quiz(),            // Add Quiz route
-        '/wordView': (context) => WordView(),
-        '/profile': (context) => myPage(),
+        '/wordView': (context) => WordView(title: "단어장",level: 1),
+        '/myPage': (context) => myPage(),
         '/login' : (context) => LoginScreen(),
         '/signup' : (context) => SignUpScreen(),
       },
     );
   }
 }
-

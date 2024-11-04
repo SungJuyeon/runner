@@ -7,33 +7,35 @@ Widget buildBottomNavigationBar(BuildContext context, Function onHomePressed, Fu
     clipBehavior: Clip.none,
     children: [
       BottomAppBar(
-        child: SingleChildScrollView( // Add this
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: IconButton(
                     icon: const Icon(Icons.leaderboard),
                     onPressed: () => onRankingPressed(context), // Navigate to Ranking
                   ),
-                  const Text('랭킹'),
-                ],
-              ),
-              const SizedBox(width: 48), // 홈 버튼 공간 확보
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
+                ),
+                const Text('랭킹'),
+              ],
+            ),
+            const SizedBox(width: 48), // 홈 버튼 공간 확보
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: IconButton(
                     icon: const Icon(Icons.person),
                     onPressed: () => onProfilePressed(context), // Navigate to Profile
                   ),
-                  const Text('마이'),
-                ],
-              ),
-            ],
-          ),
+                ),
+                const Text('마이'),
+              ],
+            ),
+          ],
         ),
       ),
       Positioned(
@@ -55,6 +57,7 @@ Widget buildBottomNavigationBar(BuildContext context, Function onHomePressed, Fu
                   color: Colors.white,
                   size: 40,
                 ),
+                SizedBox(height: 2), // 간격을 줄이기 위해 적은 높이의 SizedBox 추가
                 Text(
                   '홈',
                   style: TextStyle(color: Colors.white, fontSize: 15),
@@ -68,7 +71,6 @@ Widget buildBottomNavigationBar(BuildContext context, Function onHomePressed, Fu
   );
 }
 
-
 // Function to navigate to the Ranking page
 void onRankingPressed(BuildContext context) {
   Navigator.pushNamed(context, '/ranking');
@@ -81,5 +83,5 @@ void onHomePressed(BuildContext context) {
 
 // Function to navigate to the Profile page
 void onProfilePressed(BuildContext context) {
-  Navigator.pushNamed(context, '/profile');
+  Navigator.pushNamed(context, '/myPage');
 }
