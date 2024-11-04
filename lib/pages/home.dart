@@ -135,7 +135,7 @@ class _HomePageState extends State<HomePage> {
                             fontSize: 22,
                             shadows: [
                               Shadow(
-                                offset: Offset(0, 5),
+                                offset: Offset(0, 3),
                                 blurRadius: 4.0,
                                 color: Color.fromARGB(128, 0, 0, 0),
                               ),
@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                             fontSize: 22,
                             shadows: [
                               Shadow(
-                                offset: Offset(0, 5),
+                                offset: Offset(0, 3),
                                 blurRadius: 4.0,
                                 color: Color.fromARGB(128, 0, 0, 0),
                               ),
