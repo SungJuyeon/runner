@@ -69,7 +69,7 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
           ),
         ],
       ),
-      bottomNavigationBar: buildBottomNavigationBar(), // BottomNavigationBar 네비게이션 바
+      bottomNavigationBar: buildBottomNavigationBar(context), // BottomNavigationBar 네비게이션 바
 
     );
 
@@ -180,7 +180,7 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
   }
 
 
-  Widget buildBottomNavigationBar() {
+  Widget buildBottomNavigationBar(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       clipBehavior: Clip.none,
@@ -190,7 +190,7 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               InkWell(
-                onTap: () => onRankingPressed(), // "랭킹" 버튼의 onTap 함수 호출
+                onTap: () => onRankingPressed(context), // "랭킹" 버튼의 onTap 함수 호출
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
@@ -201,7 +201,7 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
               ),
               const SizedBox(width: 48), // 홈 버튼 공간 확보
               InkWell(
-                onTap: () => onProfilePressed(), // "마이" 버튼의 onTap 함수 호출
+                onTap: () => onProfilePressed(context), // "마이" 버튼의 onTap 함수 호출
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
@@ -216,7 +216,7 @@ class _RankingPageState extends State<ranking_page> with SingleTickerProviderSta
         Positioned(
           bottom: 15, // 홈 버튼 원 위치 조정
           child: InkWell(
-            onTap: () => onHomePressed(), // "홈" 버튼의 onTap 함수 호출
+            onTap: () => onHomePressed(context), // "홈" 버튼의 onTap 함수 호출
             child: Container(
               width: 80,
               height: 80,
