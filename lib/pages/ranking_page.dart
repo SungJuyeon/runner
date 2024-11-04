@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'navigationBar.dart';
+import 'package:runner/pages/makingImage.dart';
 
 class RankingPage extends StatefulWidget {
   @override
@@ -12,6 +13,9 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
   // 색상 정의
   final Color yellowColor = Color(0xFFEEEB96);
   final Color blueColor = Color(0xFF66A2FD);
+  // 탭 이름 배열
+  final List<String> tabNames = ['일일', '주간', '월간'];
+
 
   @override
   void initState() {
@@ -310,10 +314,25 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
     // 현재 사용자의 등수 찾기
     Map<String, dynamic>? currentUserData = rankingData.firstWhere(
           (user) => user['name'] == name,
-      orElse: () => {'rank': '-', 'name': 'Juyeon', 'score': 0},
+      orElse: () => {'rank': '-', 'name': '-', 'score': 0, 'imgNum':1},
     );
 
-    return Container(
+    return InkWell(
+        onTap: () {
+          // 클릭 시 새로운 페이지로 이동
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MakingImage(
+                rank: currentUserData?['rank'],
+                name: name,
+                imgNum: currentUserData?['imgNum'],
+                tabName: getCurrentTabName()
+              ),
+            ),
+          );
+        },
+        child: Container(
       decoration: BoxDecoration(
         color: blueColor,
         borderRadius: BorderRadius.circular(10),
@@ -336,7 +355,13 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
           ),
         ],
       ),
+    ),
     );
+  }
+
+  // 현재 탭의 이름 반환
+  String getCurrentTabName() {
+    return tabNames[_tabController.index]; // Get tab name by index
   }
 
 }

@@ -78,20 +78,28 @@ class _WordViewState extends State<WordView> {
       itemCount: wordbook.length,
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
-          leading: Checkbox(
-            value: wordbook[index].isChecked,
-            activeColor: Color(0xFFF0EC7D),
-            onChanged: (bool? value) {
-              setState(() {
-                wordbook[index].isChecked = value ?? false;
-              });
-            },
-          ),
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
             children: [
-              Text(wordbook[index].wordbookName),
-              Text(wordbook[index].additionalInfo),
+              Expanded(
+                child: Text(
+                  wordbook[index].wordbookName,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                  // 텍스트 가운데 정렬
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  wordbook[index].additionalInfo,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+              ),
             ],
           ),
           onTap: () {
@@ -102,7 +110,16 @@ class _WordViewState extends State<WordView> {
               ),
             );
           },
-          tileColor: wordbook[index].isChecked ? Color(0xFFF0EC7D) : null,
+          tileColor: wordbook[index].isChecked ? Color(0xFFFBEA7A) : null,
+          trailing: Checkbox(
+            value: wordbook[index].isChecked,
+            activeColor: Color(0xFFF0EC7D),
+            onChanged: (bool? value) {
+              setState(() {
+                wordbook[index].isChecked = value ?? false;
+              });
+            },
+          ),
         );
       },
     );
@@ -129,21 +146,39 @@ class WordListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(wordList.wordbookName),
+        backgroundColor: Color(0xFF67A4FB),
       ),
+
       body: Padding(
         padding: EdgeInsets.all(13),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                wordList.sentenceEng, // English sentence
-                style: TextStyle(fontSize: 30),
+              Container(
+                padding: EdgeInsets.all(16), // 패딩을 추가하여 내부 여백 설정
+                decoration: BoxDecoration(
+                  //border: Border.all(color: Color(0xFF67A4FB), width: 4), // 테두리 색상과 두께
+                  borderRadius: BorderRadius.circular(20), // 둥근 모서리
+                  color: Color(0xFF88BDFD), // 배경 색상
+                ),
+                child: Text(
+                  wordList.sentenceEng, // English sentence
+                  style: TextStyle(fontSize: 30),
+                ),
               ),
               SizedBox(height: 100),
-              Text(
-                wordList.sentenceKor, // Korean translation
-                style: TextStyle(fontSize: 20, color: Colors.grey[600]),
+              Container(
+                padding: EdgeInsets.all(16), // 패딩을 추가하여 내부 여백 설정
+                decoration: BoxDecoration(
+                  //border: Border.all(color: Color(0xFFF0EC7D), width: 4), // 테두리 색상과 두께
+                  borderRadius: BorderRadius.circular(20), // 둥근 모서리
+                  color: Color(0xFFF0EC7D), // 배경 색상
+                ),
+                child: Text(
+                  wordList.sentenceKor, // English sentence
+                  style: TextStyle(fontSize: 30),
+                ),
               ),
             ],
           ),
