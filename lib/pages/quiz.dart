@@ -18,6 +18,7 @@ class Quizstate extends State<Quiz> {
   List<Question> questions = [];
   bool showResult = false;
   bool isCorrect = false;
+  bool tryAgainVisible = false;
 
   @override
   void initState() {
@@ -61,25 +62,35 @@ class Quizstate extends State<Quiz> {
   void checkAnswer() {
     setState(() {
       isCorrect = _controller.text.trim().toLowerCase() == questions[currentQuestion].correctAnswer.toLowerCase();
-      if (isCorrect) correctCount++;
-      showResult = true;
+      if (isCorrect) {
+        correctCount++;
+        showResult = true;
+        tryAgainVisible = false; // Try again 메시지 숨김
+      } else {
+        showResult = false;
+        tryAgainVisible = true; // Try again 메시지 표시
+        _startTryAgainTimer(); // 타이머 시작
+      }
+    });
+  }
+
+  void _startTryAgainTimer() {
+    Future.delayed(Duration(seconds: 3), () {
+      setState(() {
+        tryAgainVisible = false; // 2초 후 메시지 숨김
+      });
     });
   }
 
   void nextQuestion() {
     setState(() {
-      _controller.clear();
-      showResult = false;
-
-      // Only increment if there are more questions to display
       if (currentQuestion < totalQuestions - 1) {
-        currentQuestion++;
+        currentQuestion++; // 다음 문제로 이동
       } else {
-        _showScore(); // Call to show the score dialog
+        _showScore(); // 마지막 문제일 경우 점수 화면 표시
       }
     });
   }
-
 
   void _showScore() {
     showDialog(
@@ -170,29 +181,116 @@ class Quizstate extends State<Quiz> {
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Stack( // Stack을 사용하여 "Try again" 메시지를 위에 배치
                 children: [
-                  Text(
-                    questions[currentQuestion].questionKorean,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: questions[currentQuestion].questionEnglish,
-                          style: TextStyle(fontSize: 24, color: Colors.black),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        questions[currentQuestion].questionKorean,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: questions[currentQuestion].questionEnglish,
+                              style: TextStyle(fontSize: 24, color: Colors.black),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                  if (tryAgainVisible) // "Try again" 메시지가 보일 때
+                    Positioned.fill( // Container 전체를 채우도록 위치 설정
+                      child: Container(
+                        color: Color(0xFFFF5E5E), // 반투명 빨간색 배경
+                        alignment: Alignment.center, // 중앙 정렬
+                        child: Text(
+                          'Try again',
+                          style: TextStyle(color: Colors.white, fontSize: 25),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
 
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, // 두 버튼을 양쪽 끝에 정렬
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          backgroundColor: Color(0xFFDBE4F8),
+                          title: Center(child: Text('정답 보기', style: TextStyle(fontSize: 24))),
+                          content: Text(
+                            '정답은 "${questions[currentQuestion].correctAnswer}"입니다.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          actions: <Widget>[
+                            Center(
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Color(0xFF7EB3FF),
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                ),
+                                child: Text(
+                                  '확인',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close dialog
+                                  // 마지막 문제일 경우 점수 화면 표시
+                                  if (currentQuestion >= questions.length - 1) {
+                                    _showScore();
+                                  } else {
+                                    nextQuestion(); // 다음 문제로 이동
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFFF5E5E),
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                    textStyle: TextStyle(fontSize: 17),
+                  ),
+                  child: Text(
+                    '정답 보기',
+                    style: TextStyle(
+                      fontFamily: 'dohyeon',
+                      color: Color(0xFF1E1E1B),
+                    ),
+                  ),
+                ),
+
+
+                ElevatedButton(
+                  onPressed: checkAnswer,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFFAE67B),
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                    elevation: 4,
+                  ),
+                  child: Text('정답 확인',
+                    style: TextStyle(fontSize: 17, color: Color(0xFF684A0B)),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
             // 정답 입력란
             TextField(
               controller: _controller,
@@ -206,60 +304,30 @@ class Quizstate extends State<Quiz> {
             ),
             SizedBox(height: 20),
 
-            // 정답 확인 버튼
-            ElevatedButton(
-              onPressed: checkAnswer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFFAE67B),
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                elevation: 4,
-              ),
-              child: Text('정답 확인',
-                  style: TextStyle(fontSize: 20, color: Color(0xFF684A0B)),
-              ),
-            ),
-
-            // 정답 결과 표시
-            if (showResult)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
+            // 정답일 경우에만 다음 문제 버튼 표시
+            if (isCorrect && showResult)
+              ElevatedButton(
+                onPressed: () {
+                  if (currentQuestion < totalQuestions - 1) {
+                    nextQuestion();
+                  } else {
+                    _showScore();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFFAE67B),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                  textStyle: TextStyle(fontSize: 17),
+                ),
                 child: Text(
-                  isCorrect ? '정답입니다!' : '오답입니다. 정답은 "${questions[currentQuestion].correctAnswer}"입니다.',
-                  textAlign: TextAlign.center,
+                  '다음 문제',
                   style: TextStyle(
-                    fontSize: 25,
-                    color: isCorrect ? Color(0xFFFDDB14) : Color(0xFFFD3027),
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        offset: Offset(0, 2),
-                        blurRadius: 2.0,
-                        color: Color.fromARGB(128, 0, 0, 0),
-                      ),
-                    ],
+                    fontFamily: 'dohyeon',
+                    color: Color(0xFF1E1E1B),
                   ),
                 ),
               ),
 
-            // 다음 문제로 이동 버튼
-            if (showResult)
-              Align(
-                alignment: Alignment.centerRight, // Align to the right
-                child: ElevatedButton(
-                  onPressed: nextQuestion,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFFDDB14),
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12), // Smaller padding
-                    textStyle: TextStyle(fontSize: 17),
-                    elevation: 4,
-                  ),
-                  child: Text('다음 문제',style: TextStyle(
-                      fontFamily: 'dohyeon',
-                      color: Color(0xFF684A0B), // Text color
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
