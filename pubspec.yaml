@@ -68,10 +68,12 @@ flutter:
     - assets/image/learnerBear.png
     - assets/image/learnerBrown.png
     - assets/image/learnerRabbit.png
+    - assets/image/runner_icon.png
     - assets/wordBook/wordsBook1.csv
     - assets/wordBook/wordsBook2.csv
     - assets/wordBook/wordsBook3.csv
-    - assets/images/runner_icon.png
+    - assets/image/runner_icon.png
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

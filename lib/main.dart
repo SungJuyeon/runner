@@ -11,7 +11,6 @@ import 'pages/loading.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
 void main() async {
   //firebase 초기화(로그인, 회원가입 기능)
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,16 +33,15 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => temp_startPage(),
-        '/ranking': (context) => ranking_page(),
+        '/ranking': (context) => RankingPage(),
         '/home': (context) => HomePage(),
         '/loading': (context) => ifLoading(),
         '/quiz': (context) => Quiz(),            // Add Quiz route
-        '/wordView': (context) => WordView(),
-        '/profile': (context) => myPage(),
+        '/wordView': (context) => WordView(title: "단어장",level: 1),
+        '/myPage': (context) => myPage(),
         '/login' : (context) => LoginScreen(),
         '/signup' : (context) => SignUpScreen(),
       },
     );
   }
 }
-
