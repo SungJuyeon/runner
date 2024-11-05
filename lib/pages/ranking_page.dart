@@ -86,7 +86,7 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
   List<Map<String, dynamic>> getRankingData(String tabName) {
     if (tabName == '일일') { // 일일 랭킹 데이터
       return [
-        {'rank': 1, 'name': 'Juyeon', 'score': 17, 'imgNum': 1},
+        {'rank': 1, 'name': 'Juyeon', 'score': 17, 'imgNum': 3},
         {'rank': 2, 'name': 'Yujin', 'score': 15, 'imgNum': 2},
         {'rank': 3, 'name': 'Hajin', 'score': 14, 'imgNum': 3},
         {'rank': 4, 'name': 'Jihoo', 'score': 13, 'imgNum': 2},
@@ -175,11 +175,11 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
 
     // 랭크에 따른 이미지 크기 조정
     if (rank == 1) {
-      imageSize = 130;
+      imageSize = 170;
     } else if (rank == 2) {
-      imageSize = 110;
+      imageSize = 120;
     } else {
-      imageSize = 90;
+      imageSize = 100;
     }
 
     // 사용자 별 캐릭터 이미지 설정
