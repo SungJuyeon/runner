@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.5.3 <4.0.0"
+  sdk: ^3.5.4
 
 
 # Dependencies specify other packages that your package needs in order to work.
@@ -32,15 +32,16 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^3.6.0
-  flutter_local_notifications: ^18.0.0  #푸시 알림 기능
-  timezone: ^0.9.4
+  firebase_auth: ^5.0.0
+  cloud_firestore: ^5.4.4
+  firebase_core_web: ^2.10.0
+  firebase_auth_web: ^5.13.2
+
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  csv: ^6.0.0
-  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -64,11 +65,7 @@ flutter:
     - assets/image/learnerBear.png
     - assets/image/learnerBrown.png
     - assets/image/learnerRabbit.png
-    - assets/wordBook/wordsBook1.csv
-    - assets/wordBook/wordsBook2.csv
-    - assets/wordBook/wordsBook3.csv
-    - assets/images/runner_icon.png
-
+    - assets/image/runner_icon.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
