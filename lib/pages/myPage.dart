@@ -27,7 +27,6 @@ class _MyPageState extends State<myPage> {
   Future<void> _fetchNickname() async {
     final user = _auth.currentUser;
     if (user != null) {
-      // 사용자 ID로 Firestore에서 닉네임 가져오기
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
       setState(() {
         nickname = userDoc['nickname'] ?? "Guest"; // 닉네임이 없으면 기본값 'Guest'로 설정
@@ -38,57 +37,69 @@ class _MyPageState extends State<myPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Page')),
+      appBar: AppBar(
+        title: const Text('마이페이지'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Material(
-                  elevation: 10,
-                  shadowColor: const Color.fromARGB(128, 0, 0, 0),
-                  borderRadius: BorderRadius.circular(20),
-                  color: const Color(0xFF66A2FD),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF66A2FD),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      elevation: 0,
+                if (nickname != null)
+                  Text(
+                    '안녕하세요, $nickname 님',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
+                  ),
+                if (nickname != null)
+                  TextButton(
                     onPressed: () {
-                      // 로그인이 안 되어 있으면 로그인 화면으로 이동, 되어 있으면 로그아웃 기능 제공
-                      if (_auth.currentUser == null) {
-                        Navigator.pushNamed(context, '/login');
-                      } else {
-                        // 로그아웃 기능 추가
-                        _auth.signOut().then((_) {
-                          setState(() {
-                            nickname = null; // 로그아웃 후 닉네임 초기화
-                          });
+                      _auth.signOut().then((_) {
+                        setState(() {
+                          nickname = null; // 로그아웃 후 닉네임 초기화
                         });
-                      }
+                        Navigator.pushReplacementNamed(context, '/login');
+                      });
                     },
-                    child: Text(
-                      nickname != null ? '안녕하세요, $nickname 님' : '로그인 / 회원가입하러 가기',
-                      style: const TextStyle(
-                        color: Color(0xFFF0EC7D),
-                        fontSize: 20,
-                        shadows: [
-                          Shadow(
-                            offset: Offset(0, 2),
-                            blurRadius: 2.0,
-                            color: Color.fromARGB(128, 0, 0, 0),
-                          ),
-                        ],
-                      ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.yellow,
+                    ),
+                    child: const Text('로그아웃'),
+                  ),
+              ],
+            ),
+            if (nickname == null)
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/login'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF66A2FD),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    elevation: 10,
+                    shadowColor: const Color.fromARGB(128, 0, 0, 0),
+                  ),
+                  child: const Text(
+                    '로그인 / 회원가입하기',
+                    style: TextStyle(
+                      color: Color(0xFFF0EC7D),
+                      fontSize: 20,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(0, 2),
+                          blurRadius: 2.0,
+                          color: Color.fromARGB(128, 0, 0, 0),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
             const SizedBox(height: 20),
             const Divider(),
             Row(
@@ -116,9 +127,9 @@ class _MyPageState extends State<myPage> {
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 20),
-            _buildLevelProgress('LEVEL 1', 0, 40),
+            _buildLevelProgress('LEVEL 1', 37, 40),
             const SizedBox(height: 30),
-            _buildLevelProgress('LEVEL 2', 0, 40),
+            _buildLevelProgress('LEVEL 2', 23, 40),
             const SizedBox(height: 30),
             _buildLevelProgress('LEVEL 3', 0, 40),
           ],
