@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:runner/pages/quiz.dart';
 import 'package:runner/pages/wordView.dart';
 
@@ -12,6 +14,8 @@ class HomePage  extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final FlutterLocalNotificationsPlugin _local = FlutterLocalNotificationsPlugin();
+
   final int totalLevels = 3; //level 수
   late List<bool> isLocked; //level 잠금
 
@@ -20,6 +24,25 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     //level 2 부터 잠금
     isLocked = List.generate(totalLevels, (index) => index > 0);
+
+    _permissionWithNotification();
+    _initialization();
+  }
+  void _permissionWithNotification() async {
+    await [Permission.notification].request();
+  }
+
+  void _initialization() async {
+    AndroidInitializationSettings android =
+    const AndroidInitializationSettings("@mipmap/ic_launcher");
+    DarwinInitializationSettings ios = const DarwinInitializationSettings(
+      requestSoundPermission: false,
+      requestBadgePermission: false,
+      requestAlertPermission: false,
+    );
+    InitializationSettings settings =
+    InitializationSettings(android: android, iOS: ios);
+    await _local.initialize(settings);
   }
 
   void unlockLevel(int level) {  //잠금 해제

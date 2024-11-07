@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:runner/pages/login.dart';
 import 'package:runner/pages/myPage.dart';
+import 'package:runner/pages/notification.dart';
 import 'package:runner/pages/signup.dart';
 import 'pages/quiz.dart';
 import 'pages/wordView.dart';
@@ -17,6 +18,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await PushNotificationService.init();
   runApp(MyApp());
 }
 
@@ -36,12 +38,57 @@ class MyApp extends StatelessWidget {
         '/ranking': (context) => RankingPage(),
         '/home': (context) => HomePage(),
         '/loading': (context) => ifLoading(),
-        '/quiz': (context) => Quiz(),            // Add Quiz route
-        '/wordView': (context) => WordView(title: "단어장",level: 1),
+        '/quiz': (context) => Quiz(),
+        '/wordView': (context) => WordView(title: "단어장", level: 1),
         '/myPage': (context) => myPage(),
-        '/login' : (context) => LoginScreen(),
-        '/signup' : (context) => SignUpScreen(),
+        '/login': (context) => LoginScreen(),
+        '/signup': (context) => SignUpScreen(),
+        '/pushNotifications': (context) => PushNotificationSettings(), // New route
       },
+    );
+  }
+}
+
+class PushNotificationSettings extends StatefulWidget {
+  @override
+  _PushNotificationSettingsState createState() => _PushNotificationSettingsState();
+}
+
+class _PushNotificationSettingsState extends State<PushNotificationSettings> {
+  bool isPushNotificationEnabled = false; // 푸시 알림 설정 스위치 상태
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('푸시 알림 설정'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '푸시 알림 설정',
+              style: TextStyle(fontSize: 20, color: Color(0xFF66A2FD)),
+            ),
+            Switch(
+              value: isPushNotificationEnabled,
+              activeColor: Color(0xFF66A2FD),
+              onChanged: (value) {
+                setState(() {
+                  isPushNotificationEnabled = value;
+                });
+
+                // 푸시 알림이 켜졌을 때 알림을 보냄
+                if (value) {
+                  PushNotificationService.showNotification();
+                }
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
