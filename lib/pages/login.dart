@@ -1,27 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFF66A2FD), // 배경색 설정
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1, // '홈' 탭 선택
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.campaign),
-            label: '랭킹',
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      if (e.code == 'user-not-found') {
+        errorMessage = "등록된 아이디가 아닙니다.";
+      } else if (e.code == 'wrong-password') {
+        errorMessage = "비밀번호가 틀렸습니다.";
+      } else {
+        errorMessage = "로그인에 실패했습니다. 아이디나 비밀번호를 확인해주세요.";
+      }
+      _showErrorDialog(errorMessage);
+    } catch (e) {
+      print("Error during login: $e");
+      _showErrorDialog("로그인 중 오류가 발생했습니다.");
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("오류",
+          style: TextStyle(
+            color: Colors.red,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '홈',
+        ),
+        content: Text(
+          message,
+          style: TextStyle(
+            color: Colors.black,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '마이',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black,
+            ),
+            child: Text("확인"),
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFF66A2FD),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -29,108 +73,119 @@ class LoginScreen extends StatelessWidget {
           children: [
             Text(
               '어너러너',
-              style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold, color: Colors.yellow),
+              style: TextStyle(
+                fontSize: 45,
+                fontWeight: FontWeight.bold,
+                color: Colors.yellow,
+                shadows: [
+                  Shadow(
+                    offset: Offset(0, 4),
+                    blurRadius: 4.0,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Image.asset(
-              'assets/images/runner_icon.png',  // 이미지 경로
-              width: 150, // 이미지 너비 설정
-              height: 100, // 이미지 높이 설정
+              'assets/image/runner_icon.png',
+              width: 280,
+              height: 230,
             ),
             SizedBox(height: 20),
-            // 첫 번째 Row: 아이디
-            Row(
-              children: [
-                Container(
-                  width: 100, // 레이블 크기 고정
-                  child: Text(
-                    '아이디',
-                    style: TextStyle(
-                      color: Colors.yellow,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 20), // 레이블과 TextField 사이 간격
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white, // 필드 배경 흰색
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none, // 테두리 제거
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            buildRowWithLabel('아이디', _emailController, obscureText: false),
+            SizedBox(height: 20),
+            buildRowWithLabel('비밀번호', _passwordController, obscureText: true),
             SizedBox(height: 30),
-            // 두 번째 Row: 비밀번호
-            Row(
-              children: [
-                Container(
-                  width: 100, // 레이블 크기 고정
-                  child: Text(
-                    '비밀번호',
-                    style: TextStyle(
-                      color: Colors.yellow,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 20), // 레이블과 TextField 사이 간격
-                Expanded(
-                  child: TextField(
-                    obscureText: true, // 비밀번호 입력 가리기
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white, // 필드 배경 흰색
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none, // 테두리 제거
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // 로그인 로직 처리
-              },
+              onPressed: _login,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.yellow, // 배경 색
+                backgroundColor: Colors.yellow,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0), // 버튼 둥글게
-                  side: BorderSide.none,  // 테두리 제거
+                  borderRadius: BorderRadius.circular(30.0),
+                  side: BorderSide.none,
                 ),
               ),
               child: Text(
                 '로그인',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(
+                  color: Colors.black,
+                ),
               ),
             ),
             SizedBox(height: 10),
             TextButton(
               onPressed: () {
-                // 회원가입 화면으로 이동
                 Navigator.pushNamed(context, '/signup');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.yellow, // 배경 색
+                backgroundColor: Colors.yellow,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0), // 버튼 둥글게
-                  side: BorderSide.none, // 테두리 제거
+                  borderRadius: BorderRadius.circular(30.0),
+                  side: BorderSide.none,
                 ),
               ),
-              child: Text('회원가입'),
+              child: Text(
+                '회원가입',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildRowWithLabel(String label, TextEditingController controller, {required bool obscureText}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex: 2, // 텍스트의 가로 비율
+          child: Align(
+            alignment: Alignment.center, // 텍스트를 가운데 정렬
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.yellow,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                    offset: Offset(0, 4),
+                    blurRadius: 4.0,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 20),
+        Expanded(
+          flex: 5, // 텍스트 필드의 가로 비율
+          child: Material(
+            elevation: 5,
+            borderRadius: BorderRadius.circular(30.0),
+            shadowColor: Colors.black.withOpacity(0.5),
+            child: TextField(
+              controller: controller,
+              obscureText: obscureText,
+              obscuringCharacter: '*',
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
