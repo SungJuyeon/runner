@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:runner/pages/quiz.dart';
 import 'package:runner/pages/wordView.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'navigationBar.dart';
 
@@ -14,12 +16,38 @@ class HomePage  extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final int totalLevels = 3; //level 수
   late List<bool> isLocked; //level 잠금
+  int userLevel = 1; // 기본값 1, 이후 Firestore에서 가져옴
 
   @override
   void initState() {  //초기 level 상태
     super.initState();
-    //level 2 부터 잠금
-    isLocked = List.generate(totalLevels, (index) => index > 0);
+    // 모든 레벨 잠금
+    isLocked = List.generate(totalLevels, (index) => true);
+    _loadUserLevel(); // Firestore에서 사용자 레벨을 가져와 설정
+  }
+
+  Future<void> _loadUserLevel() async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) return;
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (snapshot.exists) {
+        setState(() {
+          userLevel = snapshot['level'] ?? 1;
+          // 사용자 레벨에 따라 잠금 설정
+          for (int i = 0; i < totalLevels; i++) {
+            isLocked[i] = i >= userLevel; // 유저 레벨 이하의 레벨은 잠금 해제
+          }
+        });
+      }
+    } catch (e) {
+      print("Error loading user level: $e");
+    }
   }
 
   void unlockLevel(int level) {  //잠금 해제
@@ -41,7 +69,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               Align(
                 alignment: Alignment.center,
-                child: buildLevelContainer('level $levelNumber', isLocked: isLocked[index]),
+                child: buildLevelContainer('level $levelNumber', level: levelNumber, isLocked: isLocked[index]),
               ),
               const SizedBox(height: 20),
             ],
@@ -57,7 +85,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildLevelContainer(String levelText, {bool isLocked = false}) {
+  Widget buildLevelContainer(String levelText, {required int level, bool isLocked = false}) {
     return isLocked // 레벨이 잠겨있다면
         ? notYetLevel(levelText) // 잠금 레벨 표시
         : Container( // 레벨이 잠겨있지 않다면
@@ -116,7 +144,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Quiz(),
+                          builder: (context) => Quiz(level: level), // 선택된 레벨을 전달
                         ),
                       );
                     },
@@ -156,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => WordView(title: '단어장',level: 1),
+                          builder: (context) => WordView(title: '단어장', level: level), // 선택된 레벨을 전달
                         ),
                       );
                     },
