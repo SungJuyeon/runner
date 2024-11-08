@@ -39,7 +39,7 @@ class _WordViewState extends State<WordView> {
           String sentenceKor = doc['meaning_ko'] ?? '';
           String exampleEn = doc['example_en'] ?? '';
           String exampleKo = doc['example_ko'] ?? '';
-          bool isChecked = doc['boolean'] ?? false;
+          bool isChecked = doc['words_correct'] ?? false;
           wordbook.add(WordList(wordbookName, sentenceKor, exampleEn, exampleKo, isChecked, doc.id));
           print('Added word: $wordbookName, meaning: $sentenceKor'); // 각 문서 정보 출력
         }
@@ -52,7 +52,7 @@ class _WordViewState extends State<WordView> {
     }
   }
 
-  Future<void> _updateBooleanField(String docId, bool newValue) async {
+  Future<void> _updateWordsCorrectField(String docId, bool newValue) async {
     try {
       final userId = FirebaseAuth.instance.currentUser?.uid;
       await FirebaseFirestore.instance
@@ -60,10 +60,10 @@ class _WordViewState extends State<WordView> {
           .doc(userId)
           .collection('wordsBook${widget.level}')
           .doc(docId)
-          .update({'boolean': newValue});
-      print('Boolean field updated for docId: $docId');
+          .update({'words_correct': newValue});
+      print('words_correct field updated for docId: $docId');
     } catch (e) {
-      print('Error updating boolean field: $e');
+      print('Error updating words_correct field: $e');
     }
   }
 
@@ -145,7 +145,7 @@ class _WordViewState extends State<WordView> {
               setState(() {
                 wordbook[index].isChecked = value ?? false;
               });
-              _updateBooleanField(wordbook[index].docId, value ?? false);
+              _updateWordsCorrectField(wordbook[index].docId, value ?? false);
             },
           ),
         );

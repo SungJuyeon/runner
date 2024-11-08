@@ -83,6 +83,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'email': _emailController.text.trim(),
         'password' : _confirmPasswordController.text.trim(),
         'character': selectedCharacter,
+        'level' : 2,
         'createdAt': Timestamp.now(),
       });
 
@@ -130,8 +131,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
             'words': row[0],
             'meaning_ko': row[1],
             'example_en': row[2],
-            'example_ko': row[3],
-            'boolean': false,
+            'example_cloze': row[3],
+            'example_ko': row[4],
+            'words_correct': false,
+            'sentence_correct': false,
           });
         }
       } else {
