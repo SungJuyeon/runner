@@ -36,6 +36,7 @@ dependencies:
   cloud_firestore: ^5.4.4
   firebase_core_web: ^2.10.0
   firebase_auth_web: ^5.13.2
+  path_provider: ^2.0.9
 
 
 
@@ -63,7 +64,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/
+    - assets/image/
     - assets/image/loading.png
     - assets/image/learnerBear.png
     - assets/image/learnerBrown.png
@@ -73,6 +74,7 @@ flutter:
     - assets/wordBook/wordsBook2.csv
     - assets/wordBook/wordsBook3.csv
     - assets/image/runner_icon.png
+    - assets/image/rankingImageBG.png
 
 
   # The following line ensures that the Material Icons font is

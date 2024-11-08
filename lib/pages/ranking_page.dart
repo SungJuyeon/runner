@@ -74,7 +74,7 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 6.0),
-            child: buildCurrentUserRankingTile('Juyeon'), // 현재 사용자 랭킹 타일
+            child: buildCurrentUserRankingTile('Jihoo'), // 현재 사용자 랭킹 타일
           ),
         ],
       ),
@@ -325,6 +325,7 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
             MaterialPageRoute(
               builder: (context) => MakingImage(
                 rank: currentUserData?['rank'],
+                score: currentUserData?['score'] ,
                 name: name,
                 imgNum: currentUserData?['imgNum'],
                 tabName: getCurrentTabName()
