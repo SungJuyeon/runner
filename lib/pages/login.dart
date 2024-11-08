@@ -21,11 +21,11 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       String errorMessage;
       if (e.code == 'user-not-found') {
-        errorMessage = "등록된 아이디가 아닙니다.";
+        errorMessage = "등록된 이메일이 아닙니다.";
       } else if (e.code == 'wrong-password') {
         errorMessage = "비밀번호가 틀렸습니다.";
       } else {
-        errorMessage = "로그인에 실패했습니다. 아이디나 비밀번호를 확인해주세요.";
+        errorMessage = "로그인에 실패했습니다. 이메일이나 비밀번호를 확인해주세요.";
       }
       _showErrorDialog(errorMessage);
     } catch (e) {
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 230,
             ),
             SizedBox(height: 20),
-            buildRowWithLabel('아이디', _emailController, obscureText: false),
+            buildRowWithLabel('이메일', _emailController, obscureText: false),
             SizedBox(height: 20),
             buildRowWithLabel('비밀번호', _passwordController, obscureText: true),
             SizedBox(height: 30),
