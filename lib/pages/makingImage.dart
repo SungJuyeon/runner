@@ -1,114 +1,189 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
-// 색상 정의
 final Color yellowColor = Color(0xFFEEEB96);
 final Color blueColor = Color(0xFF66A2FD);
 
-class MakingImage extends StatelessWidget {
+class MakingImage extends StatefulWidget {
   final int rank;
+  final int score;
   final String name;
   final int imgNum;
   final String tabName;
 
-  const MakingImage({required this.rank, required this.name, required this.imgNum, required this.tabName});
+  const MakingImage({
+    required this.rank,
+    required this.score,
+    required this.name,
+    required this.imgNum,
+    required this.tabName,
+  });
+
+  @override
+  _MakingImageState createState() => _MakingImageState();
+}
+
+class _MakingImageState extends State<MakingImage> {
+  final GlobalKey _repaintBoundaryKey = GlobalKey();
+
+  Future<void> _captureAndSaveImage() async {
+    try {
+      RenderRepaintBoundary boundary =
+      _repaintBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+      ui.Image image = await boundary.toImage(pixelRatio: 3.0); // 고해상도 캡처
+
+      ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+      // 이미지 파일 저장
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/ranking_image.png';
+      final imageFile = File(filePath);
+      await imageFile.writeAsBytes(pngBytes);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('이미지가 저장되었습니다: $filePath')),
+      );
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     // 사용자 캐릭터 이미지 경로 설정
     String assetPath;
-    if (imgNum == 1) {
+    if (widget.imgNum == 1) {
       assetPath = 'assets/image/learnerBear.png';
-    } else if (imgNum == 2) {
+    } else if (widget.imgNum == 2) {
       assetPath = 'assets/image/learnerBrown.png';
     } else {
       assetPath = 'assets/image/learnerRabbit.png';
     }
 
     return Scaffold(
-      backgroundColor: blueColor,
-      appBar: AppBar(
-        backgroundColor: blueColor, // AppBar 배경색
-        elevation: 0, // 그림자 없애기
-        automaticallyImplyLeading: false, // 화살표 아이콘 숨기기
-        actions: [
-          // 닫기 버튼
+      body: Stack(
+        children: [
+          // 배경 이미지
           Container(
-            margin: EdgeInsets.all(0), // 여백 추가
             decoration: BoxDecoration(
-              shape: BoxShape.circle, // 원형
-              color: Colors.black, // 검은색 배경
-            ),
-            child: IconButton(
-              icon: Icon(Icons.close, color: Colors.white), // 엑스 아이콘 흰색
-              iconSize: 30, // 아이콘 크기
-              onPressed: () {
-                Navigator.pop(context); // 랭킹 페이지로 돌아가기
-              },
+              image: DecorationImage(
+                image: AssetImage('assets/image/rankingImageBG.png'),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
+          // AppBar와 body 내용
+          Column(
+            children: [
+              // AppBar 부분
+              Container(
+                color: Colors.transparent,
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // 닫기 버튼
+                    Container(
+                      margin: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black,
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.close, color: Colors.white),
+                        iconSize: 30,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 본문 내용
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RepaintBoundary(
+                        key: _repaintBoundaryKey,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: yellowColor,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                '${widget.rank}',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              '${widget.score} 점',
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 29,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Image.asset(
+                              assetPath,
+                              width: 210,
+                              height: 360,
+                              fit: BoxFit.cover,
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              '현재 ${widget.name}님의 ${widget.tabName} 랭킹',
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _captureAndSaveImage,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(250, 60),
+                          backgroundColor: yellowColor,
+                          foregroundColor: Colors.black87,
+                        ),
+                        child: Text(
+                          '인스타에 공유하기',
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 현재 사용자 랭킹 메시지 표시
-            Text(
-              '현재 $name님의 $tabName 랭킹',
-              style: TextStyle(color: Colors.black87, fontSize: 26, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20), // 텍스트와 버튼 사이의 간격
-
-            // 랭크 표시 노란색 원
-            Container(
-              width: 60, // 원의 너비
-              height: 60, // 원의 높이
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: yellowColor, // 원의 배경색
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                '$rank', // 랭크 텍스트
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 30, // 폰트 크기 조절
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(height: 20), // 원과 버튼 사이의 간격
-
-            // 사용자 별 캐릭터 이미지 표시
-            Image.asset(
-              assetPath,
-              width: 180, // 이미지 너비
-              height: 260, // 이미지 높이
-              fit: BoxFit.cover, // 이미지 크기 조정 방식
-            ),
-            SizedBox(height: 20), // 이미지와 버튼 사이의 간격
-
-            // 공유 버튼
-            ElevatedButton(
-              onPressed: () {
-                // 인스타 공유 로직
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(250, 60), // 버튼 최소 크기 설정 (너비 200, 높이 50)
-                backgroundColor: yellowColor, // 버튼의 배경색
-                foregroundColor: Colors.black87, // 버튼의 텍스트 색
-              ),
-              child: Text(
-                '인스타에 공유하기', // 공유 버튼 텍스트
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 20, // 폰트 크기 조절
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
