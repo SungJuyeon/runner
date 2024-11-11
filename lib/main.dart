@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         '/ranking': (context) => RankingPage(),
         '/home': (context) => HomePage(),
         '/loading': (context) => ifLoading(),
-        '/quiz': (context) => Quiz(),            // Add Quiz route
+        '/quiz': (context) => Quiz(level: 1),            // Add Quiz route
         '/wordView': (context) => WordView(title: "단어장",level: 1),
         '/myPage': (context) => myPage(),
         '/login' : (context) => LoginScreen(),
