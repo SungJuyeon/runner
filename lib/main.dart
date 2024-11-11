@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:runner/pages/login.dart';
 import 'package:runner/pages/myPage.dart';
 import 'package:runner/pages/signup.dart';
+import 'package:runner/pages/user_answer.dart';
 import 'pages/quiz.dart';
 import 'pages/wordView.dart';
 import 'pages/temp_startPage.dart';
