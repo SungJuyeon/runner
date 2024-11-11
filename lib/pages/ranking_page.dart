@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'navigationBar.dart';
 import 'package:runner/pages/makingImage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore 패키지
-import 'package:runner/pages/loading.dart';
+//import 'package:runner/pages/loading.dart';
 import 'package:flutter/foundation.dart'; //로그 출력
+import 'dart:html' as html; //웹 콘솔 출력
 
 // 로그에 태그를 추가해서 필터링할 수 있게하는 함수
 void printLog(String message, String tag) {
@@ -16,16 +17,17 @@ class RankingPage extends StatefulWidget {
   _RankingPageState createState() => _RankingPageState();
 }
 
-class _RankingPageState extends State<RankingPage> with SingleTickerProviderStateMixin {
+class _RankingPageState extends State<RankingPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String? nickname; // 닉네임을 저장할 변수
-  bool _isLoading = true; // 로딩 상태
+  String? nickname; // 닉네임 변수 추가
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // 색상 정의
   final Color yellowColor = Color(0xFFEEEB96);
   final Color blueColor = Color(0xFF66A2FD);
+
   // 탭 이름 배열
   final List<String> tabNames = ['일일', '주간', '월간'];
 
@@ -35,7 +37,6 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
 
-    // Firestore에서 닉네임을 동기적으로 가져오는 메서드 호출
     _fetchNickname();
 
     // 탭 변경 시 상태 업데이트
@@ -44,51 +45,18 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
     });
   }
 
-  // // Firestore에서 닉네임을 동기적으로 가져오는 메서드
-  // Future<void> _fetchNickname() async {
-  //   try {
-  //     // Firestore에서 닉네임을 가져오는 코드
-  //     DocumentSnapshot snapshot = await FirebaseFirestore.instance
-  //         .collection('users') //'users' 컬렉션
-  //         .doc('user_id') // 'user_id' 문서
-  //         .get(); // 문서에서 가져오기
-  //
-  //     setState(() {
-  //       _nickname = snapshot['nickname'] ?? 'Unknown'; // 닉네임 설정
-  //       _isLoading = false; // 로딩 상태 변경
-  //     });
-  //
-  //
-  //   } catch (e) {
-  //     setState(() {
-  //       _nickname = 'Unknown'; // 에러 발생 시 기본값 설정
-  //       _isLoading = false; // 로딩 상태 변경
-  //     });
-  //
-  //     // 에러 로그 출력
-  //     printLog("Nickname from Firebase: $_nickname", "FirebaseNickname");
-  //   }
-  // }
 
-  void _fetchNickname() {
+  // Firestore에서 닉네임을 가져오는 메서드
+  Future<void> _fetchNickname() async {
     final user = _auth.currentUser;
     if (user != null) {
-      _firestore.collection('users').doc(user.uid).get().then((userDoc) {
-        setState(() {
-          nickname = userDoc['nickname'] ?? "Guest"; // 닉네임이 없으면 기본값 'Guest'로 설정
-          _isLoading = false; // 로딩 상태 변경
-        });
-      }).catchError((e) {
-        // 오류 처리
-        setState(() {
-          nickname = "Guest"; // 오류가 발생하면 기본값 'Guest'로 설정
-          _isLoading = false; // 로딩 상태 변경
-        });
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      setState(() {
+        nickname = userDoc['nickname'] ?? "Guest"; // 닉네임이 없으면 기본값 'Guest'로 설정
       });
+      html.window.console.log("_fetchNickname 안에서 받은 닉네임: $nickname");
     }
   }
-
-
 
   @override
   void dispose() {
@@ -98,19 +66,14 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      // 닉네임이 로드되기 전에 로딩 화면을 표시
-      return Scaffold(
-        body: LoadingScreen(), // LoadingPage는 별도의 로딩 화면 위젯
-      );
-    }
-
-    // 로딩 끝난 후 화면
     return Scaffold(
       appBar: AppBar(
-        title: Text('랭킹', style: TextStyle(color: Colors.black)), // 상단바 제목 설정
-        backgroundColor: Colors.white, // 배경색 흰색
-        centerTitle: true, // 제목 중앙 정렬
+        title: Text('랭킹', style: TextStyle(color: Colors.black)),
+        // 상단바 제목 설정
+        backgroundColor: Colors.white,
+        // 배경색 흰색
+        centerTitle: true,
+        // 제목 중앙 정렬
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black), // 뒤로 가기 버튼
           onPressed: () {
@@ -118,10 +81,14 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
           },
         ),
         bottom: TabBar(
-          controller: _tabController, // 탭 컨트롤러 설정
-          labelColor: Colors.black, // 선택된 탭 글자 색상
-          unselectedLabelColor: Colors.grey, // 선택되지 않은 탭 글자 색상
-          indicatorColor: blueColor, // 탭 하단의 인디케이터 색상
+          controller: _tabController,
+          // 탭 컨트롤러 설정
+          labelColor: Colors.black,
+          // 선택된 탭 글자 색상
+          unselectedLabelColor: Colors.grey,
+          // 선택되지 않은 탭 글자 색상
+          indicatorColor: blueColor,
+          // 탭 하단의 인디케이터 색상
           tabs: [
             Tab(text: '일일'), // 일일 탭
             Tab(text: '주간'), // 주간 탭
@@ -144,7 +111,7 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 6.0),
-            child: buildCurrentUserRankingTile(nickname ?? 'Unknown'), // nickname이 null일 경우 'Unknown' 사용
+            child: buildCurrentUserRankingTile(nickname), // 현재 사용자 랭킹 타일
           ),
         ],
       ),
@@ -159,18 +126,18 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
         {'rank': 1, 'name': 'Juyeon', 'score': 17, 'imgNum': 3},
         {'rank': 2, 'name': 'Yujin', 'score': 15, 'imgNum': 2},
         {'rank': 3, 'name': 'Hajin', 'score': 14, 'imgNum': 3},
-        {'rank': 4, 'name': 'jihoo', 'score': 13, 'imgNum': 2},
+        {'rank': 4, 'name': 'jj', 'score': 13, 'imgNum': 2},
       ];
     } else if (tabName == '주간') { // 주간 랭킹 데이터
       return [
         {'rank': 1, 'name': 'Yujin', 'score': 27, 'imgNum': 2},
         {'rank': 2, 'name': 'Juyeon', 'score': 25, 'imgNum': 1},
         {'rank': 3, 'name': 'Hajin', 'score': 22, 'imgNum': 3},
-        {'rank': 4, 'name': 'jihoo', 'score': 21, 'imgNum': 2},
+        {'rank': 4, 'name': 'jj', 'score': 21, 'imgNum': 2},
       ];
     } else { // 월간 랭킹 데이터
       return [
-        {'rank': 1, 'name': 'jihoo', 'score': 37, 'imgNum': 2},
+        {'rank': 1, 'name': 'jj', 'score': 37, 'imgNum': 2},
         {'rank': 2, 'name': 'Juyeon', 'score': 35, 'imgNum': 1},
         {'rank': 3, 'name': 'Yujin', 'score': 33, 'imgNum': 2},
         {'rank': 4, 'name': 'Hajin', 'score': 30, 'imgNum': 3},
@@ -180,16 +147,15 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
 
   // 랭킹 콘텐츠를 생성하는 위젯 (탭에 따른 데이터 사용)
   Widget buildRankingContent(String tabName) {
-    List<Map<String, dynamic>> rankingData = getRankingData(tabName); // 해당 탭의 랭킹 데이터 가져오기
+    List<Map<String, dynamic>> rankingData = getRankingData(
+        tabName); // 해당 탭의 랭킹 데이터 가져오기
 
-    return SingleChildScrollView(  // 전체 화면이 넘치지 않도록 SingleChildScrollView로 감싸기
-      child: Column(
-        children: [
-          SizedBox(height: 16), // 간격 추가
-          // 상위 랭커들을 가로로 스크롤 가능하게 만들기
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal, // 가로로 스크롤
-            child: Row(
+    return Stack(
+      children: [
+        Column(
+          children: [
+            SizedBox(height: 16), // 간격 추가
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 buildHighRanker(
@@ -217,30 +183,29 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
                 ),
               ],
             ),
-          ),
-          SizedBox(height: 20),
-          // 랭킹 리스트가 화면을 넘지 않도록 Expanded로 감싸기
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true, // 리스트뷰가 화면을 초과하지 않도록 하기 위해 shrinkWrap 설정
-              itemCount: rankingData.length,
-              itemBuilder: (context, index) {
-                return buildRankList(
-                  rankingData[index]['rank'],
-                  rankingData[index]['name'],
-                  rankingData[index]['score'],
-                  yellowColor,
-                );
-              },
+            SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                itemCount: rankingData.length,
+                itemBuilder: (context, index) {
+                  return buildRankList(
+                    rankingData[index]['rank'],
+                    rankingData[index]['name'],
+                    rankingData[index]['score'],
+                    yellowColor,
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 
   // 상위 랭커 빌드 함수 (이미지 및 정보 표시)
-  Widget buildHighRanker(int rank, String name, int imgNum, int score, String tabName) {
+  Widget buildHighRanker(int rank, String name, int imgNum, int score,
+      String tabName) {
     double avatarRadius = 30; // 프로필 사진 원형 크기
     double textSize = 20; // 텍스트 크기
     Color bgColor = yellowColor;
@@ -273,16 +238,21 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
           child: Center(
             child: Text(
               rank.toString(),
-              style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold, color: Colors.black),
+              style: TextStyle(fontSize: textSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
             ),
           ),
         ),
         SizedBox(height: 8),
-        Image.asset(assetPath, height: imageSize, width: imageSize), // 이미지 표시
+        Image.asset(assetPath, height: imageSize, width: imageSize),
+        // 이미지 표시
         SizedBox(height: 4),
-        Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), // 이름 표시
+        Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        // 이름 표시
         SizedBox(height: 4),
-        Text(score.toString(), style: TextStyle(fontSize: 16)), // 점수 표시
+        Text(score.toString(), style: TextStyle(fontSize: 16)),
+        // 점수 표시
       ],
     );
   }
@@ -302,10 +272,12 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
           children: [
             CircleAvatar(
               backgroundColor: Colors.grey[300],
-              child: Text(rank.toString(), style: TextStyle(color: Colors.black)), // 순위 표시
+              child: Text(rank.toString(),
+                  style: TextStyle(color: Colors.black)), // 순위 표시
             ),
             SizedBox(width: 4),
-            Text(name, style: TextStyle(fontSize: 17), textAlign: TextAlign.center), // 이름 표시
+            Text(name, style: TextStyle(fontSize: 17),
+                textAlign: TextAlign.center), // 이름 표시
             SizedBox(width: 4),
             Text(score.toString(), style: TextStyle(fontSize: 17)), // 점수 표시
           ],
@@ -381,8 +353,10 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
   }
 
   // 현재 사용자 등수를 가져와 표시하는 함수
-  Widget buildCurrentUserRankingTile(String name) {
-    String selectedTabName = _tabController.index == 0 ? '일일' : (_tabController.index == 1 ? '주간' : '월간');
+  Widget buildCurrentUserRankingTile(String? name) {
+    html.window.console.log("현재유저 타일의 인자로 들어온 닉네임: $name");
+    String selectedTabName = _tabController.index == 0 ? '일일' : (_tabController
+        .index == 1 ? '주간' : '월간');
     List<Map<String, dynamic>> rankingData = getRankingData(selectedTabName);
 
     // 현재 사용자의 등수 찾기
@@ -392,47 +366,48 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
     );
 
     return InkWell(
-        onTap: () {
-          // 클릭 시 새로운 페이지로 이동
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MakingImage(
+      onTap: () {
+        // 클릭 시 새로운 페이지로 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MakingImage(
                 rank: currentUserData?['rank'],
                 score: currentUserData?['score'] ,
-                name: name,
+                name: name ?? 'Unkown',
                 imgNum: currentUserData?['imgNum'],
                 tabName: getCurrentTabName()
-              ),
             ),
-          );
-        },
-        child: Container(
-      decoration: BoxDecoration(
-        color: blueColor,
-        borderRadius: BorderRadius.circular(10),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: blueColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 7),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${currentUserData?['rank']}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              '${currentUserData?['name']}',
+              style: TextStyle(fontSize: 18),
+            ),
+            Text(
+              '${currentUserData?['score']}',
+              style: TextStyle(fontSize: 18),
+            ),
+          ],
+        ),
       ),
-      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 7),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '${currentUserData?['rank']}',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            '${currentUserData?['name']}',
-            style: TextStyle(fontSize: 18),
-          ),
-          Text(
-            '${currentUserData?['score']}',
-            style: TextStyle(fontSize: 18),
-          ),
-        ],
-      ),
-    ),
     );
   }
+
 
   // 현재 탭의 이름 반환
   String getCurrentTabName() {
