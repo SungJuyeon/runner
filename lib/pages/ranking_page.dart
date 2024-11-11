@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'navigationBar.dart';
 import 'package:runner/pages/makingImage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore 패키지
+import 'package:runner/pages/loading.dart';
+import 'package:flutter/foundation.dart'; //로그 출력
+
+// 로그에 태그를 추가해서 필터링할 수 있게하는 함수
+void printLog(String message, String tag) {
+  debugPrint('$tag: $message'); // debugPrint를 사용하여 로그를 태그와 함께 출력
+}
 
 class RankingPage extends StatefulWidget {
   @override
@@ -9,6 +17,8 @@ class RankingPage extends StatefulWidget {
 
 class _RankingPageState extends State<RankingPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String? _nickname; // 닉네임을 저장할 변수
+  bool _isLoading = true; // 로딩 상태
 
   // 색상 정의
   final Color yellowColor = Color(0xFFEEEB96);
@@ -21,10 +31,40 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+
+    // Firestore에서 닉네임을 동기적으로 가져오는 메서드 호출
+    _fetchNickname();
+
     // 탭 변경 시 상태 업데이트
     _tabController.addListener(() {
       setState(() {}); // UI를 새로 고침
     });
+  }
+
+  // Firestore에서 닉네임을 동기적으로 가져오는 메서드
+  Future<void> _fetchNickname() async {
+    try {
+      // Firestore에서 닉네임을 가져오는 코드('users' 컬렉션에서 현재 사용자 정보를 가져오기)
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc('user_id') // 실제 사용자 ID로 변경
+          .get();
+
+      setState(() {
+        _nickname = snapshot['nickname'] ?? 'Unknown'; // 닉네임 설정
+        _isLoading = false; // 로딩 상태 변경
+      });
+
+
+    } catch (e) {
+      setState(() {
+        _nickname = 'Unknown'; // 에러 발생 시 기본값 설정
+        _isLoading = false; // 로딩 상태 변경
+      });
+
+      // 에러 로그 출력
+      printLog("Nickname from Firebase: $_nickname", "FirebaseNickname");
+    }
   }
 
 
@@ -36,6 +76,14 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      // 닉네임이 로드되기 전에 로딩 화면을 표시
+      return Scaffold(
+        body: LoadingScreen(), // LoadingPage는 별도의 로딩 화면 위젯
+      );
+    }
+
+    // 로딩 끝난 후 화면
     return Scaffold(
       appBar: AppBar(
         title: Text('랭킹', style: TextStyle(color: Colors.black)), // 상단바 제목 설정
@@ -74,7 +122,7 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 6.0),
-            child: buildCurrentUserRankingTile('Jihoo'), // 현재 사용자 랭킹 타일
+            child: buildCurrentUserRankingTile(_nickname ?? 'Unknown'), // nickname이 null일 경우 'Unknown' 사용
           ),
         ],
       ),
@@ -89,18 +137,18 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
         {'rank': 1, 'name': 'Juyeon', 'score': 17, 'imgNum': 3},
         {'rank': 2, 'name': 'Yujin', 'score': 15, 'imgNum': 2},
         {'rank': 3, 'name': 'Hajin', 'score': 14, 'imgNum': 3},
-        {'rank': 4, 'name': 'Jihoo', 'score': 13, 'imgNum': 2},
+        {'rank': 4, 'name': 'jihoo', 'score': 13, 'imgNum': 2},
       ];
     } else if (tabName == '주간') { // 주간 랭킹 데이터
       return [
         {'rank': 1, 'name': 'Yujin', 'score': 27, 'imgNum': 2},
         {'rank': 2, 'name': 'Juyeon', 'score': 25, 'imgNum': 1},
         {'rank': 3, 'name': 'Hajin', 'score': 22, 'imgNum': 3},
-        {'rank': 4, 'name': 'Jihoo', 'score': 21, 'imgNum': 2},
+        {'rank': 4, 'name': 'jihoo', 'score': 21, 'imgNum': 2},
       ];
     } else { // 월간 랭킹 데이터
       return [
-        {'rank': 1, 'name': 'Jihoo', 'score': 37, 'imgNum': 2},
+        {'rank': 1, 'name': 'jihoo', 'score': 37, 'imgNum': 2},
         {'rank': 2, 'name': 'Juyeon', 'score': 35, 'imgNum': 1},
         {'rank': 3, 'name': 'Yujin', 'score': 33, 'imgNum': 2},
         {'rank': 4, 'name': 'Hajin', 'score': 30, 'imgNum': 3},
@@ -112,12 +160,14 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
   Widget buildRankingContent(String tabName) {
     List<Map<String, dynamic>> rankingData = getRankingData(tabName); // 해당 탭의 랭킹 데이터 가져오기
 
-    return Stack(
-      children: [
-        Column(
-          children: [
-            SizedBox(height: 16), // 간격 추가
-            Row(
+    return SingleChildScrollView(  // 전체 화면이 넘치지 않도록 SingleChildScrollView로 감싸기
+      child: Column(
+        children: [
+          SizedBox(height: 16), // 간격 추가
+          // 상위 랭커들을 가로로 스크롤 가능하게 만들기
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal, // 가로로 스크롤
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 buildHighRanker(
@@ -145,23 +195,25 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: rankingData.length,
-                itemBuilder: (context, index) {
-                  return buildRankList(
-                    rankingData[index]['rank'],
-                    rankingData[index]['name'],
-                    rankingData[index]['score'],
-                    yellowColor,
-                  );
-                },
-              ),
+          ),
+          SizedBox(height: 20),
+          // 랭킹 리스트가 화면을 넘지 않도록 Expanded로 감싸기
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true, // 리스트뷰가 화면을 초과하지 않도록 하기 위해 shrinkWrap 설정
+              itemCount: rankingData.length,
+              itemBuilder: (context, index) {
+                return buildRankList(
+                  rankingData[index]['rank'],
+                  rankingData[index]['name'],
+                  rankingData[index]['score'],
+                  yellowColor,
+                );
+              },
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
