@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'navigationBar.dart';
 import 'package:runner/pages/makingImage.dart';
@@ -17,8 +18,10 @@ class RankingPage extends StatefulWidget {
 
 class _RankingPageState extends State<RankingPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String? _nickname; // 닉네임을 저장할 변수
+  String? nickname; // 닉네임을 저장할 변수
   bool _isLoading = true; // 로딩 상태
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // 색상 정의
   final Color yellowColor = Color(0xFFEEEB96);
@@ -41,31 +44,50 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
     });
   }
 
-  // Firestore에서 닉네임을 동기적으로 가져오는 메서드
-  Future<void> _fetchNickname() async {
-    try {
-      // Firestore에서 닉네임을 가져오는 코드('users' 컬렉션에서 현재 사용자 정보를 가져오기)
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc('user_id') // 실제 사용자 ID로 변경
-          .get();
+  // // Firestore에서 닉네임을 동기적으로 가져오는 메서드
+  // Future<void> _fetchNickname() async {
+  //   try {
+  //     // Firestore에서 닉네임을 가져오는 코드
+  //     DocumentSnapshot snapshot = await FirebaseFirestore.instance
+  //         .collection('users') //'users' 컬렉션
+  //         .doc('user_id') // 'user_id' 문서
+  //         .get(); // 문서에서 가져오기
+  //
+  //     setState(() {
+  //       _nickname = snapshot['nickname'] ?? 'Unknown'; // 닉네임 설정
+  //       _isLoading = false; // 로딩 상태 변경
+  //     });
+  //
+  //
+  //   } catch (e) {
+  //     setState(() {
+  //       _nickname = 'Unknown'; // 에러 발생 시 기본값 설정
+  //       _isLoading = false; // 로딩 상태 변경
+  //     });
+  //
+  //     // 에러 로그 출력
+  //     printLog("Nickname from Firebase: $_nickname", "FirebaseNickname");
+  //   }
+  // }
 
-      setState(() {
-        _nickname = snapshot['nickname'] ?? 'Unknown'; // 닉네임 설정
-        _isLoading = false; // 로딩 상태 변경
+  void _fetchNickname() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      _firestore.collection('users').doc(user.uid).get().then((userDoc) {
+        setState(() {
+          nickname = userDoc['nickname'] ?? "Guest"; // 닉네임이 없으면 기본값 'Guest'로 설정
+          _isLoading = false; // 로딩 상태 변경
+        });
+      }).catchError((e) {
+        // 오류 처리
+        setState(() {
+          nickname = "Guest"; // 오류가 발생하면 기본값 'Guest'로 설정
+          _isLoading = false; // 로딩 상태 변경
+        });
       });
-
-
-    } catch (e) {
-      setState(() {
-        _nickname = 'Unknown'; // 에러 발생 시 기본값 설정
-        _isLoading = false; // 로딩 상태 변경
-      });
-
-      // 에러 로그 출력
-      printLog("Nickname from Firebase: $_nickname", "FirebaseNickname");
     }
   }
+
 
 
   @override
@@ -122,7 +144,7 @@ class _RankingPageState extends State<RankingPage> with SingleTickerProviderStat
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 6.0),
-            child: buildCurrentUserRankingTile(_nickname ?? 'Unknown'), // nickname이 null일 경우 'Unknown' 사용
+            child: buildCurrentUserRankingTile(nickname ?? 'Unknown'), // nickname이 null일 경우 'Unknown' 사용
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:runner/pages/login.dart';
 import 'package:runner/pages/myPage.dart';
 import 'package:runner/pages/signup.dart';
+import 'package:runner/pages/user_answer.dart';
 import 'pages/quiz.dart';
 import 'pages/wordView.dart';
 import 'pages/temp_startPage.dart';
@@ -36,11 +37,12 @@ class MyApp extends StatelessWidget {
         '/ranking': (context) => RankingPage(),
         '/home': (context) => HomePage(),
         '/loading': (context) => ifLoading(),
-        '/quiz': (context) => Quiz(),            // Add Quiz route
+        '/quiz': (context) => Quiz(level: 1),            // Add Quiz route
         '/wordView': (context) => WordView(title: "단어장",level: 1),
         '/myPage': (context) => myPage(),
         '/login' : (context) => LoginScreen(),
         '/signup' : (context) => SignUpScreen(),
+        '/answer' : (context) => UserAnswerScreen(),
       },
     );
   }

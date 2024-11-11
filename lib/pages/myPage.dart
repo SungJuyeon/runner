@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'navigationBar.dart';
+import 'notification.dart';
 
 class myPage extends StatefulWidget {
   const myPage({Key? key}) : super(key: key);
@@ -33,7 +36,6 @@ class _MyPageState extends State<myPage> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,11 +114,17 @@ class _MyPageState extends State<myPage> {
                 Switch(
                   value: isPushNotificationEnabled,
                   activeColor: Color(0xFF66A2FD),
-                  onChanged: (value) {
+                  onChanged: (value) async {
                     setState(() {
                       isPushNotificationEnabled = value;
                     });
+                    if (value) {
+                      // Ensure initialization before showing the notification
+                      await PushNotificationService.init();
+                      await PushNotificationService.showNotification();
+                    }
                   },
+
                 ),
               ],
             ),

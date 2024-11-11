@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:runner/pages/quiz.dart';
 import 'package:runner/pages/wordView.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'navigationBar.dart';
 
@@ -12,14 +16,36 @@ class HomePage  extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final FlutterLocalNotificationsPlugin _local = FlutterLocalNotificationsPlugin();
+
   final int totalLevels = 3; //level 수
   late List<bool> isLocked; //level 잠금
+  int userLevel = 1; // 기본값 1, 이후 Firestore에서 가져옴
 
   @override
   void initState() {  //초기 level 상태
     super.initState();
     //level 2 부터 잠금
     isLocked = List.generate(totalLevels, (index) => index > 0);
+
+    _permissionWithNotification();
+    _initialization();
+  }
+  void _permissionWithNotification() async {
+    await [Permission.notification].request();
+  }
+
+  void _initialization() async {
+    AndroidInitializationSettings android =
+    const AndroidInitializationSettings("@mipmap/ic_launcher");
+    DarwinInitializationSettings ios = const DarwinInitializationSettings(
+      requestSoundPermission: false,
+      requestBadgePermission: false,
+      requestAlertPermission: false,
+    );
+    InitializationSettings settings =
+    InitializationSettings(android: android, iOS: ios);
+    await _local.initialize(settings);
   }
 
   void unlockLevel(int level) {  //잠금 해제
@@ -41,7 +67,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               Align(
                 alignment: Alignment.center,
-                child: buildLevelContainer('level $levelNumber', isLocked: isLocked[index]),
+                child: buildLevelContainer('level $levelNumber', level: levelNumber, isLocked: isLocked[index]),
               ),
               const SizedBox(height: 20),
             ],
@@ -57,7 +83,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildLevelContainer(String levelText, {bool isLocked = false}) {
+  Widget buildLevelContainer(String levelText, {required int level, bool isLocked = false}) {
     return isLocked // 레벨이 잠겨있다면
         ? notYetLevel(levelText) // 잠금 레벨 표시
         : Container( // 레벨이 잠겨있지 않다면
@@ -116,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Quiz(),
+                          builder: (context) => Quiz(level: level), // 선택된 레벨을 전달
                         ),
                       );
                     },
@@ -156,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => WordView(title: '단어장',level: 1),
+                          builder: (context) => WordView(title: '단어장', level: level), // 선택된 레벨을 전달
                         ),
                       );
                     },

@@ -1,11 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:csv/csv.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 
-
 class Quiz extends StatefulWidget {
-  const Quiz({Key? key}) : super(key: key);
+  final int level; // 현재 레벨을 받는 변수 추가
+
+  const Quiz({Key? key, required this.level}) : super(key: key);
 
   @override
   Quizstate createState() => Quizstate();
@@ -14,48 +15,55 @@ class Quiz extends StatefulWidget {
 class Quizstate extends State<Quiz> {
   final TextEditingController _controller = TextEditingController();
   int currentQuestion = 0;
-  int totalQuestions = 2; //테스트로 2개 ( 20개로 수정 )
+  int totalQuestions = 3; // 3문제만 출제하도록 설정
   int correctCount = 0;
   List<Question> questions = [];
   bool showResult = false;
   bool isCorrect = false;
   bool tryAgainVisible = false;
+  bool isCorrectMessageVisible = false; // 정답 메시지 표시 여부
 
   @override
   void initState() {
     super.initState();
-    _loadQuestions();
+    _loadQuestions(widget.level); // 선택한 레벨에 맞는 문제를 로드
   }
 
-  Future<void> _loadQuestions() async {
-    List<WordList> wordbook = [];
+  Future<void> _loadQuestions(int level) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
 
-    // Load words from the three CSV files
-    for (int level = 1; level <= 3; level++) {
-      final String content = await rootBundle.loadString('assets/wordBook/wordsBook$level.csv');
-      final rows = const CsvToListConverter().convert(content);
+    List<Question> loadedQuestions = [];
 
-      for (var row in rows) {
-        if (row.length >= 5) {
-          String wordbookName = row[0].toString();
-          String additionalInfo = row[1].toString();
-          String sentenceEng = row[2].toString();
-          String sentenceBlankEng = row[3].toString();
-          String sentenceKor = row[4].toString();
-          wordbook.add(WordList(wordbookName, additionalInfo, sentenceEng, sentenceBlankEng, sentenceKor));
-        }
+    // Firestore의 사용자의 하위 컬렉션에 접근하여 선택한 레벨에 맞는 데이터 가져오기
+    final wordsBookCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('wordsBook$level');
+
+    final snapshot = await wordsBookCollection.get();
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      String exampleCloze = data['example_cloze'] ?? '';
+      String correctAnswer = data['words'] ?? '';
+      String exampleKo = data['example_ko'] ?? ''; // 한국어 예문 불러오기
+
+      // 문제가 비어있지 않으면 리스트에 추가
+      if (exampleCloze.isNotEmpty && correctAnswer.isNotEmpty) {
+        loadedQuestions.add(
+          Question(
+            questionEnglish: exampleCloze,
+            correctAnswer: correctAnswer,
+            exampleKo: exampleKo,
+          ),
+        );
       }
     }
 
-    // Shuffle and select 20 random questions
-    wordbook.shuffle(Random());
-    questions = wordbook.take(totalQuestions).map((word) {
-      return Question(
-        questionKorean: word.sentenceKor,
-        questionEnglish: word.sentenceBlankEng,
-        correctAnswer: word.wordbookName,
-      );
-    }).toList();
+    // Shuffle and select the first 3 questions
+    loadedQuestions.shuffle(Random());
+    questions = loadedQuestions.take(totalQuestions).toList();
 
     setState(() {});
   }
@@ -66,11 +74,12 @@ class Quizstate extends State<Quiz> {
       if (isCorrect) {
         correctCount++;
         showResult = true;
-        tryAgainVisible = false; // Try again 메시지 숨김
+        isCorrectMessageVisible = true; // 정답 메시지 표시
+        tryAgainVisible = false;
       } else {
         showResult = false;
-        tryAgainVisible = true; // Try again 메시지 표시
-        _startTryAgainTimer(); // 타이머 시작
+        tryAgainVisible = true;
+        _startTryAgainTimer();
       }
     });
   }
@@ -78,7 +87,7 @@ class Quizstate extends State<Quiz> {
   void _startTryAgainTimer() {
     Future.delayed(Duration(seconds: 3), () {
       setState(() {
-        tryAgainVisible = false; // 2초 후 메시지 숨김
+        tryAgainVisible = false; // 3초 후 메시지 숨김
       });
     });
   }
@@ -87,8 +96,13 @@ class Quizstate extends State<Quiz> {
     setState(() {
       if (currentQuestion < totalQuestions - 1) {
         currentQuestion++; // 다음 문제로 이동
+        _controller.clear(); // TextField 빈칸으로 초기화
+        isCorrect = false;
+        showResult = false;
+        isCorrectMessageVisible = false; // 다음 문제로 넘어가면 정답 메시지 숨김
       } else {
-        _showScore(); // 마지막 문제일 경우 점수 화면 표시
+        _showScore();
+        _controller.clear();
       }
     });
   }
@@ -99,33 +113,46 @@ class Quizstate extends State<Quiz> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Color(0xFFDBE4F8),
-          title: Center(child: Text('🎉20m 완주🎉', style: TextStyle(fontSize: 24, color: Color(
-              0xFF3A88FA)))), // Title centered
+          title: Center(child: Text('🎉문제 풀이 완료🎉', style: TextStyle(fontSize: 24, color: Color(0xFF3A88FA)))),
           content: Column(
-            mainAxisSize: MainAxisSize.min, // Ensure dialog doesn't take full height
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '이번 러닝 결과: $correctCount m / 20m\n'
-                    '누적 러닝 결과: $correctCount m / 40m',
-                textAlign: TextAlign.center, // Center the content
+                '이번 결과: $correctCount / $totalQuestions 맞춤\n',
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18),
               ),
+              if (correctCount >= 2)
+                Text(
+                  '다음 레벨이 열렸습니다!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, color: Colors.green),
+                ),
+              if (correctCount < 2)
+                Text(
+                  '다음 레벨 잠금 해제에 실패했습니다.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, color: Colors.red),
+                ),
             ],
           ),
           actions: <Widget>[
-            Center( // Center the button
+            Center(
               child: TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFF7EB3FF), // Set button background color
+                  backgroundColor: Color(0xFF7EB3FF),
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
                 child: Text(
                   '홈으로 돌아가기',
-                  style: TextStyle(color: Colors.black), // Button text color
+                  style: TextStyle(color: Colors.black),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close dialog
-                  Navigator.of(context).pop(); // Go back to the previous screen
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  if (correctCount >= 2) {
+                    _unlockNextLevel();
+                  }
                 },
               ),
             ),
@@ -135,18 +162,30 @@ class Quizstate extends State<Quiz> {
     );
   }
 
+  void _unlockNextLevel() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+    final snapshot = await userDoc.get();
+
+    if (snapshot.exists) {
+      int currentLevel = snapshot['level'] ?? 1;
+      if (widget.level == currentLevel && currentLevel < 3) {
+        await userDoc.update({'level': currentLevel + 1});
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (questions.isEmpty) {
-      return Center(child: CircularProgressIndicator());
-    }
-
     return Scaffold(
       backgroundColor: Color(0xFF7EB3FF),
       body: Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 70.0),
-        child: Column(
+        child: questions.isEmpty
+            ? Center(child: CircularProgressIndicator())
+            : Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -174,44 +213,63 @@ class Quizstate extends State<Quiz> {
               decoration: BoxDecoration(
                 color: Color(0xFFFAE67B),
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [ // Add shadow here
+                boxShadow: [
                   BoxShadow(
-                    color: Color.fromARGB(128, 0, 0, 0), // Shadow color
-                    blurRadius: 3.0, // Blur radius
-                    offset: Offset(0, 4), // Shadow offset
+                    color: Color.fromARGB(128, 0, 0, 0),
+                    blurRadius: 3.0,
+                    offset: Offset(0, 4),
                   ),
                 ],
               ),
-              child: Stack( // Stack을 사용하여 "Try again" 메시지를 위에 배치
+              child: Stack(
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        questions[currentQuestion].questionKorean,
+                        questions[currentQuestion].exampleKo,
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 10),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: questions[currentQuestion].questionEnglish,
-                              style: TextStyle(fontSize: 24, color: Colors.black),
-                            ),
-                          ],
-                        ),
+                      Text(
+                        questions[currentQuestion].questionEnglish,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  if (tryAgainVisible) // "Try again" 메시지가 보일 때
-                    Positioned.fill( // Container 전체를 채우도록 위치 설정
-                      child: Container(
-                        color: Color(0xFFFF5E5E), // 반투명 빨간색 배경
-                        alignment: Alignment.center, // 중앙 정렬
-                        child: Text(
-                          'Try again',
-                          style: TextStyle(color: Colors.white, fontSize: 25),
+                  if (tryAgainVisible)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            tryAgainVisible = false;
+                          });
+                        },
+                        child: Container(
+                          color: Color(0xFFFF5E5E),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Try again',
+                            style: TextStyle(color: Colors.white, fontSize: 25),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (isCorrectMessageVisible)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isCorrectMessageVisible = false;
+                          });
+                        },
+                        child: Container(
+                          color: Color(0xFF5ECC5E),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '정답입니다!',
+                            style: TextStyle(color: Colors.white, fontSize: 25),
+                          ),
                         ),
                       ),
                     ),
@@ -220,8 +278,22 @@ class Quizstate extends State<Quiz> {
             ),
             SizedBox(height: 15),
 
+            // 정답 입력란
+            TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: '정답 입력',
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+
+            // 정답 확인 및 힌트 버튼
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // 두 버튼을 양쪽 끝에 정렬
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
                   onPressed: () {
@@ -248,12 +320,11 @@ class Quizstate extends State<Quiz> {
                                   style: TextStyle(color: Colors.black),
                                 ),
                                 onPressed: () {
-                                  Navigator.of(context).pop(); // Close dialog
-                                  // 마지막 문제일 경우 점수 화면 표시
+                                  Navigator.of(context).pop();
                                   if (currentQuestion >= questions.length - 1) {
                                     _showScore();
                                   } else {
-                                    nextQuestion(); // 다음 문제로 이동
+                                    nextQuestion();
                                   }
                                 },
                               ),
@@ -276,8 +347,6 @@ class Quizstate extends State<Quiz> {
                     ),
                   ),
                 ),
-
-
                 ElevatedButton(
                   onPressed: checkAnswer,
                   style: ElevatedButton.styleFrom(
@@ -285,23 +354,12 @@ class Quizstate extends State<Quiz> {
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                     elevation: 4,
                   ),
-                  child: Text('정답 확인',
+                  child: Text(
+                    '정답 확인',
                     style: TextStyle(fontSize: 17, color: Color(0xFF684A0B)),
                   ),
                 ),
               ],
-            ),
-            SizedBox(height: 20),
-            // 정답 입력란
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                hintText: '정답 입력',
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-              textAlign: TextAlign.center,
             ),
             SizedBox(height: 20),
 
@@ -328,7 +386,6 @@ class Quizstate extends State<Quiz> {
                   ),
                 ),
               ),
-
           ],
         ),
       ),
@@ -337,23 +394,13 @@ class Quizstate extends State<Quiz> {
 }
 
 class Question {
-  final String questionKorean;
   final String questionEnglish;
   final String correctAnswer;
+  final String exampleKo; // 한국어 예문 추가
 
   Question({
-    required this.questionKorean,
     required this.questionEnglish,
     required this.correctAnswer,
+    required this.exampleKo,
   });
-}
-
-class WordList {
-  String wordbookName;
-  String additionalInfo;
-  String sentenceEng;
-  String sentenceBlankEng;
-  String sentenceKor;
-
-  WordList(this.wordbookName, this.additionalInfo, this.sentenceEng, this.sentenceBlankEng, this.sentenceKor);
 }
