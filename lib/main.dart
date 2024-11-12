@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/myPage': (context) => myPage(),
         '/login' : (context) => LoginScreen(),
         '/signup' : (context) => SignUpScreen(),
+
       },
     );
   }

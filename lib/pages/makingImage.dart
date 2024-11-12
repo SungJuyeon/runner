@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 // 색상 정의
 final Color yellowColor = Color(0xFFEEEB96);
@@ -91,7 +92,7 @@ class MakingImage extends StatelessWidget {
             // 공유 버튼
             ElevatedButton(
               onPressed: () {
-                // 인스타 공유 로직
+                shareContent();// 인스타 공유 로직
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(250, 60), // 버튼 최소 크기 설정 (너비 200, 높이 50)
@@ -111,5 +112,9 @@ class MakingImage extends StatelessWidget {
         ),
       ),
     );
+  }
+  void shareContent() {
+    String message = '현재 $name님의 $tabName 랭킹은 $rank위입니다!';
+    Share.share(message);
   }
 }
