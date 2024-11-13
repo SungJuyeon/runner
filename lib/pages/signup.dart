@@ -83,7 +83,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'email': _emailController.text.trim(),
         'password' : _confirmPasswordController.text.trim(),
         'character': selectedCharacter,
-        'level' : 2,
+        'level' : 1,
+        'level1_true' : 0,
+        'level2_true' : 0,
+        'level3_true' : 0,
         'createdAt': Timestamp.now(),
       });
 
