@@ -69,25 +69,28 @@ class _LoadingScreenState extends State<LoadingScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Move the text higher up
+                const SizedBox(height: 50), // Added space before the text
                 Text(
                   '어너러너',
                   style: const TextStyle(
-                    fontSize: 25,
+                    fontSize: 30, // Increased font size
                     color: Colors.yellow,
                     fontFamily: 'dohyeon',
                   ),
                 ),
+                // Add more space between text and the character
+                const SizedBox(height: 50), // Added space between text and image
                 // LearnerBear image flipped horizontally based on _isFlipped
                 Transform.scale(
                   scaleX: _isFlipped ? -1 : 1, // 상태에 따라 수평 반전
                   alignment: Alignment.center, // 반전 기준 점
                   child: Image.asset(
                     'assets/image/learnerBear.png',
-                    width: 200,
-                    height: 300,
+                    width: 400, // Increased image size
+                    height: 600, // Increased image size
                   ),
                 ),
-                // Other images can be added here
               ],
             ),
           ),

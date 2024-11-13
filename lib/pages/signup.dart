@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:csv/csv.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'loading.dart';
+
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -70,6 +72,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoadingScreen()), // Navigate to loading screen
+    );
+
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
@@ -94,17 +101,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       Navigator.pushNamed(context, '/login');
     } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
       if (e.code == 'email-already-in-use') {
         _showErrorDialog("이미 존재하는 이메일입니다.");
       } else {
         _showErrorDialog("회원가입 중 오류가 발생했습니다: ${e.message}");
       }
     } catch (e) {
+      Navigator.pop(context);
       print("Error during signup: $e");
       _showErrorDialog("회원가입 중 오류가 발생했습니다.");
     }
-
-
   }
 
   Future<void> _createWordsCollection(String userId) async {
