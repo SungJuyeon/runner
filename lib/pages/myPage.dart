@@ -16,13 +16,20 @@ class myPage extends StatefulWidget {
 
 class _MyPageState extends State<myPage> {
   bool isPushNotificationEnabled = false; // 푸시 알림 설정 스위치 상태
-  String? nickname; // 닉네임 변수 추가
+  String? nickname;
+  String? character;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   int level1True = 0;
   int level2True = 0;
   int level3True = 0;
+
+  final Map<int, String> characterMap = {
+    1: "1",
+    2: "2",
+    3: "3",
+  };
 
   @override
   void initState() {
@@ -38,6 +45,8 @@ class _MyPageState extends State<myPage> {
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
       setState(() {
         nickname = userDoc['nickname'] ?? "Guest"; // 닉네임이 없으면 기본값 'Guest'로 설정
+        int? characterNumber = userDoc['character']; // 'character'는 번호로 저장되어 있음
+        character = characterMap[characterNumber] ?? "Unknown"; // Map을 통해 문자로 변환, 기본값 'Unknown'
       });
     }
   }
@@ -55,7 +64,6 @@ class _MyPageState extends State<myPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,19 +75,33 @@ class _MyPageState extends State<myPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (nickname != null)
-                  Text(
-                    '안녕하세요, $nickname 님',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+            if (nickname != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '안녕하세요, $nickname 님',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 8), // 간격을 조정합니다.
+                      if (character != null)
+                        Text(
+                          '내 레벨: $character', // character값을 보여줌
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF000000),
+                          ),
+                        ),
+                    ],
                   ),
-                if (nickname != null)
                   TextButton(
                     onPressed: () {
                       _auth.signOut().then((_) {
@@ -90,12 +112,12 @@ class _MyPageState extends State<myPage> {
                       });
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: Colors.yellow,
+                      foregroundColor: Color(0xFFD3C108),
                     ),
                     child: const Text('로그아웃'),
                   ),
-              ],
-            ),
+                ],
+              ),
             if (nickname == null)
               Center(
                 child: ElevatedButton(
@@ -144,7 +166,6 @@ class _MyPageState extends State<myPage> {
                       await PushNotificationService.showNotification();
                     }
                   },
-
                 ),
               ],
             ),
