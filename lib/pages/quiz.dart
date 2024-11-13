@@ -194,7 +194,11 @@ class Quizstate extends State<Quiz> {
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).pop(correctCount >= 2);
+
+                  if (correctCount >= 2) {
+                    _unlockNextLevel();  // 다음 레벨 해제
+                  }
+                  Navigator.of(context).pop(true); // HomePage로 돌아가기
                 },
               ),
             ),
@@ -203,6 +207,7 @@ class Quizstate extends State<Quiz> {
       },
     );
   }
+
 
   void _unlockNextLevel() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
