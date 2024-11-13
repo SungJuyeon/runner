@@ -31,6 +31,7 @@ class _MyPageState extends State<myPage> {
     3: "3",
   };
 
+
   @override
   void initState() {
     super.initState();
@@ -43,10 +44,11 @@ class _MyPageState extends State<myPage> {
     final user = _auth.currentUser;
     if (user != null) {
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      int? level = userDoc['level'];
       setState(() {
         nickname = userDoc['nickname'] ?? "Guest"; // 닉네임이 없으면 기본값 'Guest'로 설정
-        int? characterNumber = userDoc['character']; // 'character'는 번호로 저장되어 있음
-        character = characterMap[characterNumber] ?? "Unknown"; // Map을 통해 문자로 변환, 기본값 'Unknown'
+        character = characterMap[level] ?? "Unknown"; // Log the fetched value here
+        print('Fetched character: $character');
       });
     }
   }
