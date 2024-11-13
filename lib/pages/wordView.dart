@@ -41,7 +41,7 @@ class _WordViewState extends State<WordView> {
           String exampleKo = doc['example_ko'] ?? '';
           bool isChecked = doc['words_correct'] ?? false;
           wordbook.add(WordList(wordbookName, sentenceKor, exampleEn, exampleKo, isChecked, doc.id));
-          print('Added word: $wordbookName, meaning: $sentenceKor'); // 각 문서 정보 출력
+          //print('Added word: $wordbookName, meaning: $sentenceKor'); // 각 문서 정보 출력
         }
         setState(() {}); // 데이터 추가 후 상태 업데이트
       } else {
@@ -121,9 +121,9 @@ class _WordViewState extends State<WordView> {
                 child: Text(
                   wordbook[index].sentenceKor, // 한글 뜻
                   textAlign: TextAlign.start,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
-                    color: Colors.grey,
+                    color: Colors.grey[800],
                   ),
                 ),
               ),
@@ -199,7 +199,7 @@ class WordListPage extends StatelessWidget {
                     SizedBox(height: 20),
                     Text(
                       wordList.exampleKo, // 영어 문장 해석
-                      style: TextStyle(fontSize: 20, color: Colors.grey),
+                      style: TextStyle(fontSize: 20, color: Colors.grey[800]),
                       textAlign: TextAlign.center,
                     ),
                   ],
