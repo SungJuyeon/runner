@@ -20,10 +20,15 @@ class _MyPageState extends State<myPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  int level1True = 0;
+  int level2True = 0;
+  int level3True = 0;
+
   @override
   void initState() {
     super.initState();
     _fetchNickname();
+    _fetchLevelProgress();
   }
 
   // Firestore에서 닉네임을 가져오는 메서드
@@ -36,6 +41,21 @@ class _MyPageState extends State<myPage> {
       });
     }
   }
+
+  // Firestore에서 각 레벨의 true 개수를 가져오는 메서드
+  Future<void> _fetchLevelProgress() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+    setState(() {
+      level1True = userDoc['level1_true'] ?? 0;
+      level2True = userDoc['level2_true'] ?? 0;
+      level3True = userDoc['level3_true'] ?? 0;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,11 +155,11 @@ class _MyPageState extends State<myPage> {
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 20),
-            _buildLevelProgress('LEVEL 1', 37, 40),
+            _buildLevelProgress('LEVEL 1', level1True, 40),
             const SizedBox(height: 30),
-            _buildLevelProgress('LEVEL 2', 23, 40),
+            _buildLevelProgress('LEVEL 2', level2True, 40),
             const SizedBox(height: 30),
-            _buildLevelProgress('LEVEL 3', 0, 40),
+            _buildLevelProgress('LEVEL 3', level3True, 40),
           ],
         ),
       ),

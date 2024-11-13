@@ -25,12 +25,37 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {  //초기 level 상태
     super.initState();
-    //level 2 부터 잠금
+    // 모든 레벨 잠금 상태로 초기화
     isLocked = List.generate(totalLevels, (index) => index > 0);
 
     _permissionWithNotification();
     _initialization();
+    // Firestore에서 사용자 레벨 데이터를 로드
+    _loadUserLevelData();
   }
+
+  Future<void> _loadUserLevelData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    if (!userDoc.exists) return;
+
+    // Firestore에서 levelX_true 값을 가져와서 확인
+    final level1True = userDoc['level1_true'] ?? 0;
+    final level2True = userDoc['level2_true'] ?? 0;
+
+    // 현재 레벨 상태 설정: 각 레벨의 true 개수가 2 이상이면 잠금 해제
+    setState(() {
+      if (level1True >= 2) {
+        isLocked[1] = false; // Level 2 잠금 해제
+      }
+      if (level2True >= 2) {
+        isLocked[2] = false; // Level 3 잠금 해제
+      }
+    });
+  }
+
   void _permissionWithNotification() async {
     await [Permission.notification].request();
   }
