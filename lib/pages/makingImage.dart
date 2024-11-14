@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart'; // rootBundle을 위해 필요
+import 'package:path_provider/path_provider.dart'; // 임시 디렉토리에 파일 저장
+import 'package:share_plus/share_plus.dart'; // 파일 공유를 위해 사용
 
-// 색상 정의
 final Color yellowColor = Color(0xFFEEEB96);
 final Color blueColor = Color(0xFF66A2FD);
 
@@ -15,7 +17,6 @@ class MakingImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 사용자 캐릭터 이미지 경로 설정
     String assetPath;
     if (imgNum == 1) {
       assetPath = 'assets/image/learnerBear.png';
@@ -28,22 +29,21 @@ class MakingImage extends StatelessWidget {
     return Scaffold(
       backgroundColor: blueColor,
       appBar: AppBar(
-        backgroundColor: blueColor, // AppBar 배경색
-        elevation: 0, // 그림자 없애기
-        automaticallyImplyLeading: false, // 화살표 아이콘 숨기기
+        backgroundColor: blueColor,
+        elevation: 0,
+        automaticallyImplyLeading: false,
         actions: [
-          // 닫기 버튼
           Container(
-            margin: EdgeInsets.all(0), // 여백 추가
+            margin: EdgeInsets.all(0),
             decoration: BoxDecoration(
-              shape: BoxShape.circle, // 원형
-              color: Colors.black, // 검은색 배경
+              shape: BoxShape.circle,
+              color: Colors.black,
             ),
             child: IconButton(
-              icon: Icon(Icons.close, color: Colors.white), // 엑스 아이콘 흰색
-              iconSize: 30, // 아이콘 크기
+              icon: Icon(Icons.close, color: Colors.white),
+              iconSize: 30,
               onPressed: () {
-                Navigator.pop(context); // 랭킹 페이지로 돌아가기
+                Navigator.pop(context);
               },
             ),
           ),
@@ -53,57 +53,50 @@ class MakingImage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 현재 사용자 랭킹 메시지 표시
             Text(
               '현재 $name님의 $tabName 랭킹',
               style: TextStyle(color: Colors.black87, fontSize: 26, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20), // 텍스트와 버튼 사이의 간격
-
-            // 랭크 표시 노란색 원
+            SizedBox(height: 20),
             Container(
-              width: 60, // 원의 너비
-              height: 60, // 원의 높이
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: yellowColor, // 원의 배경색
+                color: yellowColor,
               ),
               alignment: Alignment.center,
               child: Text(
-                '$rank', // 랭크 텍스트
+                '$rank',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 30, // 폰트 크기 조절
+                  fontSize: 30,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            SizedBox(height: 20), // 원과 버튼 사이의 간격
-
-            // 사용자 별 캐릭터 이미지 표시
+            SizedBox(height: 20),
             Image.asset(
               assetPath,
-              width: 180, // 이미지 너비
-              height: 260, // 이미지 높이
-              fit: BoxFit.cover, // 이미지 크기 조정 방식
+              width: 180,
+              height: 260,
+              fit: BoxFit.cover,
             ),
-            SizedBox(height: 20), // 이미지와 버튼 사이의 간격
-
-            // 공유 버튼
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                shareContent();// 인스타 공유 로직
+                shareToInstagram(assetPath);
               },
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(250, 60), // 버튼 최소 크기 설정 (너비 200, 높이 50)
-                backgroundColor: yellowColor, // 버튼의 배경색
-                foregroundColor: Colors.black87, // 버튼의 텍스트 색
+                minimumSize: Size(250, 60),
+                backgroundColor: yellowColor,
+                foregroundColor: Colors.black87,
               ),
               child: Text(
-                '인스타에 공유하기', // 공유 버튼 텍스트
+                '인스타에 공유하기',
                 style: TextStyle(
                   color: Colors.black87,
-                  fontSize: 20, // 폰트 크기 조절
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -113,8 +106,23 @@ class MakingImage extends StatelessWidget {
       ),
     );
   }
-  void shareContent() {
-    String message = '현재 $name님의 $tabName 랭킹은 $rank위입니다!';
-    Share.share(message);
+
+  Future<void> shareToInstagram(String assetPath) async {
+    try {
+      // assets 폴더에 있는 이미지를 메모리로 로드
+      final byteData = await rootBundle.load(assetPath);
+      // 임시 디렉토리에 파일 저장
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/temp_image.png');
+      await file.writeAsBytes(byteData.buffer.asUint8List());
+
+      // Share 패키지를 통해 Instagram으로 공유
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: '현재 $name님의 $tabName 랭킹은 $rank위입니다!',
+      );
+    } catch (e) {
+      print("Error sharing image: $e");
+    }
   }
 }
