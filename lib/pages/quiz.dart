@@ -34,6 +34,9 @@ class Quizstate extends State<Quiz> {
     if (userId == null) return;
 
     List<Question> loadedQuestions = [];
+    //false 먼저 랜덤 출제하기 위한 list
+    List<Question> falseQuestions = [];
+    List<Question> trueQuestions = [];
 
     // Firestore의 사용자의 하위 컬렉션에 접근하여 선택한 레벨에 맞는 데이터 가져오기
     final wordsBookCollection = FirebaseFirestore.instance
@@ -47,19 +50,30 @@ class Quizstate extends State<Quiz> {
       final data = doc.data();
       String exampleCloze = data['example_cloze'] ?? '';
       String correctAnswer = data['words'] ?? '';
-      String exampleKo = data['example_ko'] ?? ''; // 한국어 예문 불러오기
+      String exampleKo = data['example_ko'] ?? '';
+      bool sentenceCorrect = data['sentence_correct'] ?? false; // sentence_correct 필드 확인
+      String documentId = doc.id;
 
       // 문제가 비어있지 않으면 리스트에 추가
       if (exampleCloze.isNotEmpty && correctAnswer.isNotEmpty) {
-        loadedQuestions.add(
-          Question(
-            questionEnglish: exampleCloze,
-            correctAnswer: correctAnswer,
-            exampleKo: exampleKo,
-          ),
+        final question = Question(
+          questionEnglish: exampleCloze,
+          correctAnswer: correctAnswer,
+          exampleKo: exampleKo,
+          documentId: documentId,
         );
+
+        // sentence_correct 상태에 따라 분류
+        if (sentenceCorrect) {
+          trueQuestions.add(question); // `true`인 문제 저장
+        } else {
+          falseQuestions.add(question); // `false`인 문제 저장
+        }
       }
     }
+
+    // false가 있는 경우 false 문제를 우선적으로 선택, 그렇지 않으면 true 문제 선택
+    loadedQuestions = falseQuestions.isNotEmpty ? falseQuestions : trueQuestions;
 
     // Shuffle and select the first 3 questions
     loadedQuestions.shuffle(Random());
@@ -68,19 +82,50 @@ class Quizstate extends State<Quiz> {
     setState(() {});
   }
 
-  void checkAnswer() {
+  void checkAnswer() async {
     setState(() {
       isCorrect = _controller.text.trim().toLowerCase() == questions[currentQuestion].correctAnswer.toLowerCase();
       if (isCorrect) {
         correctCount++;
         showResult = true;
-        isCorrectMessageVisible = true; // 정답 메시지 표시
+        isCorrectMessageVisible = true;
         tryAgainVisible = false;
+        _updateSentenceCorrect(questions[currentQuestion].documentId); // Firestore 업데이트
       } else {
         showResult = false;
         tryAgainVisible = true;
         _startTryAgainTimer();
       }
+    });
+  }
+
+  Future<void> _updateSentenceCorrect(String documentId) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final docRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('wordsBook${widget.level}')
+        .doc(documentId);
+
+    final docSnapshot = await docRef.get();
+    bool sentenceCorrect = docSnapshot['sentence_correct'] ?? false;
+
+    // 이미 sentence_correct가 true인 경우 카운트 증가 없이 종료
+    if (sentenceCorrect) return;
+
+    // sentence_correct를 true로 업데이트
+    await docRef.update({'sentence_correct': true});
+
+    // 사용자 문서의 해당 레벨 카운트 증가
+    final userDocRef =
+    FirebaseFirestore.instance.collection('users').doc(userId);
+
+    String levelTrueField = 'level${widget.level}_true';
+
+    await userDocRef.update({
+      levelTrueField: FieldValue.increment(1),
     });
   }
 
@@ -149,10 +194,11 @@ class Quizstate extends State<Quiz> {
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+
                   if (correctCount >= 2) {
-                    _unlockNextLevel();
+                    _unlockNextLevel();  // 다음 레벨 해제
                   }
+                  Navigator.of(context).pop(true); // HomePage로 돌아가기
                 },
               ),
             ),
@@ -161,6 +207,7 @@ class Quizstate extends State<Quiz> {
       },
     );
   }
+
 
   void _unlockNextLevel() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -396,11 +443,13 @@ class Quizstate extends State<Quiz> {
 class Question {
   final String questionEnglish;
   final String correctAnswer;
-  final String exampleKo; // 한국어 예문 추가
+  final String exampleKo;
+  final String documentId;
 
   Question({
     required this.questionEnglish,
     required this.correctAnswer,
     required this.exampleKo,
+    required this.documentId,
   });
 }

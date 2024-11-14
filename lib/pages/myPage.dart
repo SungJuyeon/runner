@@ -16,14 +16,27 @@ class myPage extends StatefulWidget {
 
 class _MyPageState extends State<myPage> {
   bool isPushNotificationEnabled = false; // 푸시 알림 설정 스위치 상태
-  String? nickname; // 닉네임 변수 추가
+  String? nickname;
+  String? character;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  int level1True = 0;
+  int level2True = 0;
+  int level3True = 0;
+
+  final Map<int, String> characterMap = {
+    1: "1",
+    2: "2",
+    3: "3",
+  };
+
 
   @override
   void initState() {
     super.initState();
     _fetchNickname();
+    _fetchLevelProgress();
   }
 
   // Firestore에서 닉네임을 가져오는 메서드
@@ -31,11 +44,28 @@ class _MyPageState extends State<myPage> {
     final user = _auth.currentUser;
     if (user != null) {
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      int? level = userDoc['level'];
       setState(() {
         nickname = userDoc['nickname'] ?? "Guest"; // 닉네임이 없으면 기본값 'Guest'로 설정
+        character = characterMap[level] ?? "Unknown"; // Log the fetched value here
+        print('Fetched character: $character');
       });
     }
   }
+
+  // Firestore에서 각 레벨의 true 개수를 가져오는 메서드
+  Future<void> _fetchLevelProgress() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+    setState(() {
+      level1True = userDoc['level1_true'] ?? 0;
+      level2True = userDoc['level2_true'] ?? 0;
+      level3True = userDoc['level3_true'] ?? 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,19 +77,33 @@ class _MyPageState extends State<myPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (nickname != null)
-                  Text(
-                    '안녕하세요, $nickname 님',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+            if (nickname != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '안녕하세요, $nickname 님',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 8), // 간격을 조정합니다.
+                      if (character != null)
+                        Text(
+                          '내 레벨: $character', // character값을 보여줌
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF000000),
+                          ),
+                        ),
+                    ],
                   ),
-                if (nickname != null)
                   TextButton(
                     onPressed: () {
                       _auth.signOut().then((_) {
@@ -70,12 +114,12 @@ class _MyPageState extends State<myPage> {
                       });
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: Colors.yellow,
+                      foregroundColor: Color(0xFFD3C108),
                     ),
                     child: const Text('로그아웃'),
                   ),
-              ],
-            ),
+                ],
+              ),
             if (nickname == null)
               Center(
                 child: ElevatedButton(
@@ -124,7 +168,6 @@ class _MyPageState extends State<myPage> {
                       await PushNotificationService.showNotification();
                     }
                   },
-
                 ),
               ],
             ),
@@ -135,11 +178,11 @@ class _MyPageState extends State<myPage> {
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 20),
-            _buildLevelProgress('LEVEL 1', 37, 40),
+            _buildLevelProgress('LEVEL 1', level1True, 40),
             const SizedBox(height: 30),
-            _buildLevelProgress('LEVEL 2', 23, 40),
+            _buildLevelProgress('LEVEL 2', level2True, 40),
             const SizedBox(height: 30),
-            _buildLevelProgress('LEVEL 3', 0, 40),
+            _buildLevelProgress('LEVEL 3', level3True, 40),
           ],
         ),
       ),

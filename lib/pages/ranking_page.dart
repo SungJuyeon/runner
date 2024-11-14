@@ -55,7 +55,7 @@ class _RankingPageState extends State<RankingPage>
       setState(() {
         nickname = userDoc['nickname'] ?? "Guest"; // 닉네임이 없으면 기본값 'Guest'로 설정
       });
-      html.window.console.log("_fetchNickname 안에서 받은 닉네임: $nickname");
+      //html.window.console.log("_fetchNickname 안에서 받은 닉네임: $nickname");
     }
   }
 
