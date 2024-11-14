@@ -2,10 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'navigationBar.dart';
 import 'package:runner/pages/makingImage.dart';
+import 'package:runner/pages/getRankingData.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore 패키지
 //import 'package:runner/pages/loading.dart';
 import 'package:flutter/foundation.dart'; //로그 출력
-//import 'dart:html' as html; //웹 콘솔 출력
+import 'dart:html' as html; //웹 콘솔 출력
 
 // 로그에 태그를 추가해서 필터링할 수 있게하는 함수
 void printLog(String message, String tag) {
@@ -120,88 +121,90 @@ class _RankingPageState extends State<RankingPage>
   }
 
   // 탭 이름에 따라 랭킹 데이터를 반환하는 함수
-  List<Map<String, dynamic>> getRankingData(String tabName) {
+  Future<List<Map<String, dynamic>>> getRankingData(String tabName) async {
     if (tabName == '일일') { // 일일 랭킹 데이터
-      return [
-        {'rank': 1, 'name': 'Juyeon', 'score': 17, 'imgNum': 3},
-        {'rank': 2, 'name': 'Yujin', 'score': 15, 'imgNum': 2},
-        {'rank': 3, 'name': 'Hajin', 'score': 14, 'imgNum': 3},
-        {'rank': 4, 'name': 'jj', 'score': 13, 'imgNum': 2},
-      ];
+      return await getDailyRanking();
     } else if (tabName == '주간') { // 주간 랭킹 데이터
-      return [
-        {'rank': 1, 'name': 'Yujin', 'score': 27, 'imgNum': 2},
-        {'rank': 2, 'name': 'Juyeon', 'score': 25, 'imgNum': 1},
-        {'rank': 3, 'name': 'Hajin', 'score': 22, 'imgNum': 3},
-        {'rank': 4, 'name': 'jj', 'score': 21, 'imgNum': 2},
-      ];
+      return await getWeeklyRanking();
     } else { // 월간 랭킹 데이터
-      return [
-        {'rank': 1, 'name': 'jj', 'score': 37, 'imgNum': 2},
-        {'rank': 2, 'name': 'Juyeon', 'score': 35, 'imgNum': 1},
-        {'rank': 3, 'name': 'Yujin', 'score': 33, 'imgNum': 2},
-        {'rank': 4, 'name': 'Hajin', 'score': 30, 'imgNum': 3},
-      ];
+      return await getMonthlyRanking();
     }
   }
 
   // 랭킹 콘텐츠를 생성하는 위젯 (탭에 따른 데이터 사용)
   Widget buildRankingContent(String tabName) {
-    List<Map<String, dynamic>> rankingData = getRankingData(
-        tabName); // 해당 탭의 랭킹 데이터 가져오기
+    // Future로 랭킹 데이터를 가져오는 부분
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: getRankingData(tabName), // 비동기 데이터 가져오기
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator()); // 데이터 로딩 중일 때 로딩 인디케이터 표시
+        } else if (snapshot.hasError) {
+          return Center(child: Text('오류 발생: ${snapshot.error}')); // 오류 발생 시 메시지 표시
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('데이터가 없습니다.')); // 데이터가 없을 경우
+        } else {
+          final rankingData = snapshot.data!; // 데이터가 있을 경우
 
-    return Stack(
-      children: [
-        Column(
-          children: [
-            SizedBox(height: 16), // 간격 추가
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                buildHighRanker(
-                  rankingData[1]['rank'],
-                  rankingData[1]['name'],
-                  rankingData[1]['imgNum'], // 이미지 경로 전달
-                  rankingData[1]['score'],
-                  tabName,
-                ),
-                SizedBox(width: 20),
-                buildHighRanker(
-                  rankingData[0]['rank'],
-                  rankingData[0]['name'],
-                  rankingData[0]['imgNum'], // 이미지 경로 전달
-                  rankingData[0]['score'],
-                  tabName,
-                ),
-                SizedBox(width: 20),
-                buildHighRanker(
-                  rankingData[2]['rank'],
-                  rankingData[2]['name'],
-                  rankingData[2]['imgNum'], // 이미지 경로 전달
-                  rankingData[2]['score'],
-                  tabName,
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: rankingData.length,
-                itemBuilder: (context, index) {
-                  return buildRankList(
-                    rankingData[index]['rank'],
-                    rankingData[index]['name'],
-                    rankingData[index]['score'],
-                    yellowColor,
-                  );
-                },
+          // rank 값을 숫자로 변환하여 정렬 (탭에 맞게 순위가 바뀌어야 하므로)
+          rankingData.sort((a, b) => int.parse(a['rank'].toString()).compareTo(int.parse(b['rank'].toString())));
+
+          return Stack(
+            children: [
+              Column(
+                children: [
+                  SizedBox(height: 16), // 간격 추가
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      buildHighRanker(
+                        rankingData[1]['rank'],
+                        rankingData[1]['name'],
+                        rankingData[1]['imgNum'], // 이미지 경로 전달
+                        rankingData[1]['score'],
+                        tabName,
+                      ),
+                      SizedBox(width: 20),
+                      buildHighRanker(
+                        rankingData[0]['rank'],
+                        rankingData[0]['name'],
+                        rankingData[0]['imgNum'], // 이미지 경로 전달
+                        rankingData[0]['score'],
+                        tabName,
+                      ),
+                      SizedBox(width: 20),
+                      buildHighRanker(
+                        rankingData[2]['rank'],
+                        rankingData[2]['name'],
+                        rankingData[2]['imgNum'], // 이미지 경로 전달
+                        rankingData[2]['score'],
+                        tabName,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: rankingData.length,
+                      itemBuilder: (context, index) {
+                        return buildRankList(
+                          rankingData[index]['rank'],
+                          rankingData[index]['name'],
+                          rankingData[index]['score'],
+                          yellowColor,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          );
+        }
+      },
     );
   }
+
 
   // 상위 랭커 빌드 함수 (이미지 및 정보 표시)
   Widget buildHighRanker(int rank, String name, int imgNum, int score,
@@ -354,57 +357,75 @@ class _RankingPageState extends State<RankingPage>
 
   // 현재 사용자 등수를 가져와 표시하는 함수
   Widget buildCurrentUserRankingTile(String? name) {
-    //html.window.console.log("현재유저 타일의 인자로 들어온 닉네임: $name");
-    String selectedTabName = _tabController.index == 0 ? '일일' : (_tabController
-        .index == 1 ? '주간' : '월간');
-    List<Map<String, dynamic>> rankingData = getRankingData(selectedTabName);
+    html.window.console.log("현재유저 타일의 인자로 들어온 닉네임: $name");
 
-    // 현재 사용자의 등수 찾기
-    Map<String, dynamic>? currentUserData = rankingData.firstWhere(
-          (user) => user['name'] == name,
-      orElse: () => {'rank': '-', 'name': '-', 'score': 0, 'imgNum':1},
-    );
+    String selectedTabName = _tabController.index == 0
+        ? '일일'
+        : (_tabController.index == 1 ? '주간' : '월간');
 
-    return InkWell(
-      onTap: () {
-        // 클릭 시 새로운 페이지로 이동
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MakingImage(
-                rank: currentUserData?['rank'],
-                score: currentUserData?['score'] ,
-                name: name ?? 'Unkown',
-                imgNum: currentUserData?['imgNum'],
-                tabName: getCurrentTabName()
+    // FutureBuilder로 비동기 데이터를 처리
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: getRankingData(selectedTabName), // 비동기 데이터 가져오기
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator()); // 데이터 로딩 중일 때 로딩 인디케이터 표시
+        } else if (snapshot.hasError) {
+          return Center(child: Text('오류 발생: ${snapshot.error}')); // 오류 발생 시 메시지 표시
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('데이터가 없습니다.')); // 데이터가 없을 경우
+        } else {
+          // snapshot.data는 랭킹 데이터
+          List<Map<String, dynamic>> rankingData = snapshot.data!;
+
+          // 현재 사용자의 등수 찾기
+          Map<String, dynamic>? currentUserData = rankingData.firstWhere(
+                (user) => user['name'] == name,
+            orElse: () => {'rank': '-', 'name': '-', 'score': 0, 'imgNum': 1},
+          );
+
+          return InkWell(
+            onTap: () {
+              // 클릭 시 새로운 페이지로 이동
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MakingImage(
+                    rank: currentUserData['rank'],
+                    score: currentUserData['score'],
+                    name: name ?? 'Unkown',
+                    imgNum: currentUserData['imgNum'],
+                    tabName: getCurrentTabName(),
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: blueColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 7),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${currentUserData['rank']}',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '${currentUserData['name']}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  Text(
+                    '${currentUserData['score']}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: blueColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 7),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${currentUserData?['rank']}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              '${currentUserData?['name']}',
-              style: TextStyle(fontSize: 18),
-            ),
-            Text(
-              '${currentUserData?['score']}',
-              style: TextStyle(fontSize: 18),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -414,4 +435,6 @@ class _RankingPageState extends State<RankingPage>
     return tabNames[_tabController.index]; // Get tab name by index
   }
 
+
 }
+
