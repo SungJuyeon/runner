@@ -17,21 +17,27 @@ DateTime getStartOfMonth(DateTime date) {
   return DateTime(date.year, date.month, 1); // 이번 달 첫 날
 }
 
-// 유저의 imgNum을 가져오는 함수 (character 필드 사용)
+// 유저의 imgNum을 가져오는 함수 (nickname 필드 사용)
 Future<int> getUserImgNum(String userId) async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  // 유저 정보 가져오기 (userId를 사용)
-  DocumentSnapshot userDoc = await firestore.collection('users').doc(userId).get();
+  // nickname 필드가 userId와 일치하는 문서 쿼리
+  QuerySnapshot querySnapshot = await firestore
+      .collection('users')
+      .where('nickname', isEqualTo: userId)
+      .limit(1)
+      .get();
 
-  // 유저의 character가 존재하면 반환, 없으면 기본값 3을 반환
-  if (userDoc.exists && userDoc.data() != null) {
+  // 해당하는 문서가 있는지 확인하고, character 필드를 반환
+  if (querySnapshot.docs.isNotEmpty) {
+    var userDoc = querySnapshot.docs.first;
+    html.window.console.log("userId: $userId character: ${userDoc['character']}");
     return userDoc['character'] ?? 3; // character 필드가 없으면 기본값 3
   } else {
+    html.window.console.log("No data found for userId: $userId");
     return 3; // 기본값 3
   }
 }
-
 // 일일 랭킹을 반환하는 함수
 Future<List<Map<String, dynamic>>> getDailyRanking() async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -39,16 +45,16 @@ Future<List<Map<String, dynamic>>> getDailyRanking() async {
   DateTime startOfDay = getStartOfDay(now);
 
   // 일일 데이터 가져오기
-  QuerySnapshot snapshot = await firestore
+  QuerySnapshot snapshotDaily = await firestore
       .collection('trueRecode')
       .where('time', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
       .get();
 
   // 닉네임별로 count 합산
   Map<String, int> ranking = {};
-  for (var doc in snapshot.docs) {
+  for (var doc in snapshotDaily.docs) {
     String nickname = doc['nickname'];
-    int count = doc['count'];
+    int count = doc['count'];  // count가 int 타입인지 확인
 
     // 닉네임 별로 count 합산
     if (ranking.containsKey(nickname)) {
@@ -62,30 +68,20 @@ Future<List<Map<String, dynamic>>> getDailyRanking() async {
   var sortedRanking = ranking.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value)); // 내림차순 정렬
 
-  // imgNum을 비동기적으로 가져오기 위해 Future.wait을 사용
-  List<Future> futures = [];
+  html.window.console.log("일간 정렬된 랭킹: $sortedRanking");
+
   List<Map<String, dynamic>> rankingData = [];
+  int rank = 1;
 
-  // imgNum을 비동기적으로 가져오기 위해 Future.wait을 사용
   for (var entry in sortedRanking) {
-    futures.add(
-      getUserImgNum(entry.key).then((imgNum) {
-        // imgNum을 가져온 후 rankingData에 추가
-        rankingData.add({
-          'name': entry.key,  // 닉네임
-          'score': entry.value,  // 점수
-          'imgNum': imgNum,  // 유저의 imgNum
-        });
-      }),
-    );
-  }
-
-  // 모든 비동기 작업 완료 후 순위를 부여
-  await Future.wait(futures);
-
-  // 순위 부여
-  for (int i = 0; i < rankingData.length; i++) {
-    rankingData[i]['rank'] = i + 1;  // 순위는 1부터 시작
+    // imgNum을 비동기적으로 가져와서 순차적으로 리스트에 추가
+    var imgNum = await getUserImgNum(entry.key);
+    rankingData.add({
+      'name': entry.key,  // 닉네임
+      'score': entry.value,  // 점수
+      'imgNum': imgNum,  // 유저의 imgNum
+      'rank': rank++,  // 순위는 1부터 시작
+    });
   }
 
   // rankingData 출력 (웹에서만 사용)
@@ -94,23 +90,23 @@ Future<List<Map<String, dynamic>>> getDailyRanking() async {
   return rankingData;
 }
 
-// 주간 랭킹을 반환하는 함수 (월간 랭킹 함수와 비슷한 방식)
+// 주간 랭킹을 반환하는 함수
 Future<List<Map<String, dynamic>>> getWeeklyRanking() async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   DateTime now = DateTime.now();
   DateTime startOfWeek = getStartOfWeek(now);
 
   // 주간 데이터 가져오기
-  QuerySnapshot snapshot = await firestore
+  QuerySnapshot snapshotWeek = await firestore
       .collection('trueRecode')
       .where('time', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfWeek))
       .get();
 
   // 닉네임별로 count 합산
   Map<String, int> ranking = {};
-  for (var doc in snapshot.docs) {
+  for (var doc in snapshotWeek.docs) {
     String nickname = doc['nickname'];
-    int count = doc['count'];
+    int count = doc['count'];  // count가 int 타입인지 확인
 
     // 닉네임 별로 count 합산
     if (ranking.containsKey(nickname)) {
@@ -124,30 +120,20 @@ Future<List<Map<String, dynamic>>> getWeeklyRanking() async {
   var sortedRanking = ranking.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value)); // 내림차순 정렬
 
-  // imgNum을 비동기적으로 가져오기 위해 Future.wait을 사용
-  List<Future> futures = [];
+  html.window.console.log("주간 정렬된 랭킹: $sortedRanking");
+
   List<Map<String, dynamic>> rankingData = [];
+  int rank = 1;
 
-  // imgNum을 비동기적으로 가져오기 위해 Future.wait을 사용
   for (var entry in sortedRanking) {
-    futures.add(
-      getUserImgNum(entry.key).then((imgNum) {
-        // imgNum을 가져온 후 rankingData에 추가
-        rankingData.add({
-          'name': entry.key,  // 닉네임
-          'score': entry.value,  // 점수
-          'imgNum': imgNum,  // 유저의 imgNum
-        });
-      }),
-    );
-  }
-
-  // 모든 비동기 작업 완료 후 순위를 부여
-  await Future.wait(futures);
-
-  // 순위 부여
-  for (int i = 0; i < rankingData.length; i++) {
-    rankingData[i]['rank'] = i + 1;  // 순위는 1부터 시작
+    // imgNum을 비동기적으로 가져와서 순차적으로 리스트에 추가
+    var imgNum = await getUserImgNum(entry.key);
+    rankingData.add({
+      'name': entry.key,  // 닉네임
+      'score': entry.value,  // 점수
+      'imgNum': imgNum,  // 유저의 imgNum
+      'rank': rank++,  // 순위는 1부터 시작
+    });
   }
 
   // rankingData 출력 (웹에서만 사용)
@@ -164,14 +150,14 @@ Future<List<Map<String, dynamic>>> getMonthlyRanking() async {
   DateTime startOfMonth = getStartOfMonth(now);
 
   // 월간 데이터 가져오기
-  QuerySnapshot snapshot = await firestore
+  QuerySnapshot snapshotMonth = await firestore
       .collection('trueRecode')
       .where('time', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
       .get();
 
   // 닉네임별로 count 합산
   Map<String, int> ranking = {};
-  for (var doc in snapshot.docs) {
+  for (var doc in snapshotMonth.docs) {
     String nickname = doc['nickname'];
     int count = doc['count'];
 
@@ -187,34 +173,29 @@ Future<List<Map<String, dynamic>>> getMonthlyRanking() async {
   var sortedRanking = ranking.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value)); // 내림차순 정렬
 
-  // imgNum을 비동기적으로 가져오기 위해 Future.wait을 사용
-  List<Future> futures = [];
-  List<Map<String, dynamic>> rankingData = [];
+  html.window.console.log("월간 정렬된 랭킹: $sortedRanking");
 
-  // imgNum을 비동기적으로 가져오기 위해 Future.wait을 사용
+  // sortedRanking에 imgNum과 순위를 추가하는 코드
+  int rank = 1;  // 순위는 1부터 시작
+  List<Map<String, dynamic>> updatedRanking = [];  // 최종 반환할 리스트 형태
+
   for (var entry in sortedRanking) {
-    futures.add(
-      getUserImgNum(entry.key).then((imgNum) {
-        // 순위를 부여하고 데이터 추가 (순위 부여는 비동기 후에 처리)
-        rankingData.add({
-          'name': entry.key,  // 닉네임
-          'score': entry.value,  // 점수
-          'imgNum': imgNum,  // 유저의 imgNum
-        });
-      }),
-    );
-  }
+    // getUserImgNum(entry.key)는 비동기 함수이므로 await 사용
+    var imgNum = await getUserImgNum(entry.key);
 
-  // 모든 비동기 작업 완료 후 순위를 부여
-  await Future.wait(futures);
+    // imgNum과 rank를 포함한 새 데이터를 updatedRanking에 추가
+    updatedRanking.add({
+      'name': entry.key,        // 닉네임
+      'score': entry.value,     // 점수
+      'imgNum': imgNum,         // 유저의 imgNum
+      'rank': rank,             // 순위
+    });
 
-  // 순위를 부여
-  for (int i = 0; i < rankingData.length; i++) {
-    rankingData[i]['rank'] = i + 1;  // 순위는 1부터 시작
+    rank++;  // 다음 항목에 대한 순위를 증가시킴
   }
 
   // rankingData 출력 (웹에서만 사용)
-  html.window.console.log("월간 랭킹 데이터: $rankingData");
+  html.window.console.log("월간 랭킹 데이터: $updatedRanking");
 
-  return rankingData;
+  return updatedRanking; // List<Map<String, dynamic>> 타입으로 반환
 }

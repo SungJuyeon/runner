@@ -13,25 +13,6 @@ void printLog(String message, String tag) {
   debugPrint('$tag: $message'); // debugPrint를 사용하여 로그를 태그와 함께 출력
 }
 
-// Future<void> addTrueRecode(int tCount, String nickname) async {
-//   FirebaseFirestore firestore = FirebaseFirestore.instance;
-//
-//   // 현재 시간을 Firestore timestamp로 생성
-//   Timestamp currentTime = Timestamp.now();
-//
-//   // trueRecode 컬렉션에 문서 추가
-//   await firestore.collection('trueRecode').add({
-//     'count': tCount, // tCount를 'count' 필드에 저장
-//     'nickname': nickname, // 닉네임을 'nickname' 필드에 저장
-//     'time': currentTime, // 현재 시간을 'time' 필드에 저장
-//   }).then((docRef) {
-//     print('Document added with ID: ${docRef.id}');
-//   }).catchError((error) {
-//     print('Error adding document: $error');
-//   });
-// }
-
-
 class RankingPage extends StatefulWidget {
   @override
   _RankingPageState createState() => _RankingPageState();
