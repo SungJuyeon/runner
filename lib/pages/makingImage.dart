@@ -197,10 +197,10 @@ class _MakingImageState extends State<MakingImage> {
     );
   }
 
-  Future<void> shareToInstagram(String assetPath) async {
+  Future<void> shareToInstagram(String filePath) async {
     try {
       // assets 폴더에 있는 이미지를 메모리로 로드
-      final byteData = await rootBundle.load(assetPath);
+      final byteData = await rootBundle.load(filePath);
       // 임시 디렉토리에 파일 저장
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/temp_image.png');
