@@ -4,6 +4,9 @@ import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:flutter/services.dart'; // rootBundle을 위해 필요
+import 'package:path_provider/path_provider.dart'; // 임시 디렉토리에 파일 저장
+import 'package:share_plus/share_plus.dart'; // 파일 공유를 위해 사용
 
 final Color yellowColor = Color(0xFFEEEB96);
 final Color blueColor = Color(0xFF66A2FD);
@@ -48,6 +51,10 @@ class _MakingImageState extends State<MakingImage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('이미지가 저장되었습니다: $filePath')),
       );
+
+      // 저장된 이미지를 인스타그램 등으로 공유
+      //await Share.shareFiles([filePath], text: '내 랭킹 이미지를 확인하세요!');
+
     } catch (e) {
       print(e);
     }

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; // 날짜 포맷팅을 위해 사용
-import 'dart:html' as html; //웹 콘솔 출력
+//import 'dart:html' as html; //웹 콘솔 출력
 
 // 탭 별로 날짜 범위를 정하기 위해 사용되는 함수들
 // 범위의 시작 날짜 및 시간을 세팅 (주간이면 사용 날짜의 첫날인 월요일을 리턴, 일일은 하루의 시작 시간인 자정을 리턴)
@@ -31,10 +31,10 @@ Future<int> getUserImgNum(String userId) async {
   // 해당하는 문서가 있는지 확인하고, character 필드를 반환
   if (querySnapshot.docs.isNotEmpty) {
     var userDoc = querySnapshot.docs.first;
-    html.window.console.log("userId: $userId character: ${userDoc['character']}");
+    //html.window.console.log("userId: $userId character: ${userDoc['character']}");
     return userDoc['character'] ?? 3; // character 필드가 없으면 기본값 3
   } else {
-    html.window.console.log("No data found for userId: $userId");
+    //html.window.console.log("No data found for userId: $userId");
     return 3; // 기본값 3
   }
 }
@@ -68,7 +68,7 @@ Future<List<Map<String, dynamic>>> getDailyRanking() async {
   var sortedRanking = ranking.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value)); // 내림차순 정렬
 
-  html.window.console.log("일간 정렬된 랭킹: $sortedRanking");
+  //html.window.console.log("일간 정렬된 랭킹: $sortedRanking");
 
   List<Map<String, dynamic>> rankingData = [];
   int rank = 1;
@@ -85,7 +85,7 @@ Future<List<Map<String, dynamic>>> getDailyRanking() async {
   }
 
   // rankingData 출력 (웹에서만 사용)
-  html.window.console.log("일일 랭킹 데이터: $rankingData");
+  //html.window.console.log("일일 랭킹 데이터: $rankingData");
 
   return rankingData;
 }
@@ -120,7 +120,7 @@ Future<List<Map<String, dynamic>>> getWeeklyRanking() async {
   var sortedRanking = ranking.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value)); // 내림차순 정렬
 
-  html.window.console.log("주간 정렬된 랭킹: $sortedRanking");
+  //html.window.console.log("주간 정렬된 랭킹: $sortedRanking");
 
   List<Map<String, dynamic>> rankingData = [];
   int rank = 1;
@@ -137,7 +137,7 @@ Future<List<Map<String, dynamic>>> getWeeklyRanking() async {
   }
 
   // rankingData 출력 (웹에서만 사용)
-  html.window.console.log("주간 랭킹 데이터: $rankingData");
+  //html.window.console.log("주간 랭킹 데이터: $rankingData");
 
   return rankingData;
 }
@@ -173,7 +173,7 @@ Future<List<Map<String, dynamic>>> getMonthlyRanking() async {
   var sortedRanking = ranking.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value)); // 내림차순 정렬
 
-  html.window.console.log("월간 정렬된 랭킹: $sortedRanking");
+  //html.window.console.log("월간 정렬된 랭킹: $sortedRanking");
 
   // sortedRanking에 imgNum과 순위를 추가하는 코드
   int rank = 1;  // 순위는 1부터 시작
@@ -195,7 +195,7 @@ Future<List<Map<String, dynamic>>> getMonthlyRanking() async {
   }
 
   // rankingData 출력 (웹에서만 사용)
-  html.window.console.log("월간 랭킹 데이터: $updatedRanking");
+  //html.window.console.log("월간 랭킹 데이터: $updatedRanking");
 
   return updatedRanking; // List<Map<String, dynamic>> 타입으로 반환
 }

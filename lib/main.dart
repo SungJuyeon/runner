@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       initialRoute: '/home',
       routes: {
-        '/': (context) => temp_startPage(),
+        //'/': (context) => temp_startPage(),
         '/ranking': (context) => RankingPage(),
         '/home': (context) => HomePage(),
         '/loading': (context) => ifLoading(),
