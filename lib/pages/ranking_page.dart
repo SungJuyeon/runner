@@ -6,7 +6,7 @@ import 'package:runner/pages/getRankingData.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore 패키지
 //import 'package:runner/pages/loading.dart';
 import 'package:flutter/foundation.dart'; //로그 출력
-import 'dart:html' as html; //웹 콘솔 출력
+//import 'dart:html' as html; //웹 콘솔 출력
 
 // 로그에 태그를 추가해서 필터링할 수 있게하는 함수
 void printLog(String message, String tag) {
@@ -357,7 +357,7 @@ class _RankingPageState extends State<RankingPage>
 
   // 현재 사용자 등수를 가져와 표시하는 함수
   Widget buildCurrentUserRankingTile(String? name) {
-    html.window.console.log("현재유저 타일의 인자로 들어온 닉네임: $name");
+    //html.window.console.log("현재유저 타일의 인자로 들어온 닉네임: $name");
 
     String selectedTabName = _tabController.index == 0
         ? '일일'

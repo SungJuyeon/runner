@@ -165,12 +165,18 @@ class _MakingImageState extends State<MakingImage> {
                       ),
                       SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: _captureAndSaveImage,
+                        onPressed: () async {
+                          // 먼저 이미지를 캡처하고 저장
+                          await _captureAndSaveImage();
+                          // 저장한 이미지를 Instagram으로 공유
+                          await shareToInstagram(assetPath);
+                        },
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size(250, 60),
                           backgroundColor: yellowColor,
                           foregroundColor: Colors.black87,
                         ),
+
                         child: Text(
                           '인스타에 공유하기',
                           style: TextStyle(
@@ -203,7 +209,7 @@ class _MakingImageState extends State<MakingImage> {
       // Share 패키지를 통해 Instagram으로 공유
       await Share.shareXFiles(
         [XFile(file.path)],
-        //text: '현재 $name님의 $tabName 랭킹은 $rank위입니다!',
+        text: '현재 ${widget.name}님의 ${widget.tabName} 랭킹은 ${widget.rank}위입니다!',
       );
     } catch (e) {
       print("Error sharing image: $e");
