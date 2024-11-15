@@ -46,7 +46,7 @@ Future<List<Map<String, dynamic>>> getDailyRanking() async {
 
   // 일일 데이터 가져오기
   QuerySnapshot snapshotDaily = await firestore
-      .collection('trueRecode')
+      .collection('trueRecord')
       .where('time', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
       .get();
 
@@ -98,7 +98,7 @@ Future<List<Map<String, dynamic>>> getWeeklyRanking() async {
 
   // 주간 데이터 가져오기
   QuerySnapshot snapshotWeek = await firestore
-      .collection('trueRecode')
+      .collection('trueRecord')
       .where('time', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfWeek))
       .get();
 
@@ -151,7 +151,7 @@ Future<List<Map<String, dynamic>>> getMonthlyRanking() async {
 
   // 월간 데이터 가져오기
   QuerySnapshot snapshotMonth = await firestore
-      .collection('trueRecode')
+      .collection('trueRecord')
       .where('time', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
       .get();
 
