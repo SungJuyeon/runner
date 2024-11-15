@@ -6,7 +6,7 @@ import 'package:runner/pages/getRankingData.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore 패키지
 //import 'package:runner/pages/loading.dart';
 import 'package:flutter/foundation.dart'; //로그 출력
-import 'dart:html' as html; //웹 콘솔 출력
+//import 'dart:html' as html; //웹 콘솔 출력
 
 // 로그에 태그를 추가해서 필터링할 수 있게하는 함수
 void printLog(String message, String tag) {
@@ -67,6 +67,10 @@ class _RankingPageState extends State<RankingPage>
 
   @override
   Widget build(BuildContext context) {
+    // MediaQuery로 화면 크기 정보를 가져오기
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('랭킹', style: TextStyle(color: Colors.black)),
@@ -164,7 +168,7 @@ class _RankingPageState extends State<RankingPage>
                         rankingData[1]['score'],
                         tabName,
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(width: 0),
                       buildHighRanker(
                         rankingData[0]['rank'],
                         rankingData[0]['name'],
@@ -172,7 +176,7 @@ class _RankingPageState extends State<RankingPage>
                         rankingData[0]['score'],
                         tabName,
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(width: 0),
                       buildHighRanker(
                         rankingData[2]['rank'],
                         rankingData[2]['name'],
@@ -182,7 +186,7 @@ class _RankingPageState extends State<RankingPage>
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   Expanded(
                     child: ListView.builder(
                       itemCount: rankingData.length,
@@ -217,11 +221,11 @@ class _RankingPageState extends State<RankingPage>
 
     // 랭크에 따른 이미지 크기 조정
     if (rank == 1) {
-      imageSize = 170;
+      imageSize = 160;
     } else if (rank == 2) {
-      imageSize = 120;
+      imageSize = 110;
     } else {
-      imageSize = 100;
+      imageSize = 90;
     }
 
     // 사용자 별 캐릭터 이미지 설정
@@ -357,7 +361,7 @@ class _RankingPageState extends State<RankingPage>
 
   // 현재 사용자 등수를 가져와 표시하는 함수
   Widget buildCurrentUserRankingTile(String? name) {
-    html.window.console.log("현재유저 타일의 인자로 들어온 닉네임: $name");
+    //html.window.console.log("현재유저 타일의 인자로 들어온 닉네임: $name");
 
     String selectedTabName = _tabController.index == 0
         ? '일일'
@@ -434,7 +438,4 @@ class _RankingPageState extends State<RankingPage>
   String getCurrentTabName() {
     return tabNames[_tabController.index]; // Get tab name by index
   }
-
-
 }
-
