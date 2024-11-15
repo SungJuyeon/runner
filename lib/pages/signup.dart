@@ -1,6 +1,17 @@
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:csv/csv.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'loading.dart';
+
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -17,9 +28,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _nicknameController = TextEditingController();
 
   int? selectedCharacter; // 선택된 캐릭터 ID를 저장하는 변수
-  //메시지 3초간 띄우기 위해 필요한 변수
-  bool _showError = false;
-  String _errorMessage = "";
+
+
 
   Future<void> _signUp() async {
     final nickname = _nicknameController.text.trim();
@@ -62,32 +72,87 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoadingScreen()), // Navigate to loading screen
+    );
+
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+      String userId = userCredential.user!.uid;
+
+      await _firestore.collection('users').doc(userId).set({
         'nickname': _nicknameController.text.trim(),
         'email': _emailController.text.trim(),
         'password' : _confirmPasswordController.text.trim(),
         'character': selectedCharacter,
+        'level' : 1,
+        'level1_true' : 0,
+        'level2_true' : 0,
+        'level3_true' : 0,
         'createdAt': Timestamp.now(),
       });
 
+      await _createWordsCollection(userId); // 회원가입 후 호출
+
       Navigator.pushNamed(context, '/login');
     } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
       if (e.code == 'email-already-in-use') {
         _showErrorDialog("이미 존재하는 이메일입니다.");
       } else {
         _showErrorDialog("회원가입 중 오류가 발생했습니다: ${e.message}");
       }
     } catch (e) {
+      Navigator.pop(context);
       print("Error during signup: $e");
       _showErrorDialog("회원가입 중 오류가 발생했습니다.");
     }
   }
+
+  Future<void> _createWordsCollection(String userId) async {
+    final firestore = FirebaseFirestore.instance;
+
+    // Firebase Storage에서 업로드한 파일의 URL을 여기에 추가하세요
+    List<String> fileUrls = [
+      'https://firebasestorage.googleapis.com/v0/b/runner-fcaf6.firebasestorage.app/o/wordsBook1.csv?alt=media&token=9ac6f619-b97f-4188-bf17-9ae84224ee0a',
+      'https://firebasestorage.googleapis.com/v0/b/runner-fcaf6.firebasestorage.app/o/wordsBook2.csv?alt=media&token=c2b3dc43-8d16-48f9-b916-c35ff8d46401',
+      'https://firebasestorage.googleapis.com/v0/b/runner-fcaf6.firebasestorage.app/o/wordsBook3.csv?alt=media&token=26aeb4a5-585a-4aaa-b063-5ee71f97e266',
+    ];
+
+    for (int i = 0; i < fileUrls.length; i++) {
+      final response = await http.get(Uri.parse(fileUrls[i]));
+
+      if (response.statusCode == 200) {
+        // 응답 바이트를 UTF-8로 디코딩한 후 CSV로 변환
+        String csvData = utf8.decode(response.bodyBytes);
+        List<List<dynamic>> rows = const CsvToListConverter().convert(csvData);
+
+        for (int j = 0; j < rows.length && j < 40; j++) {
+          var row = rows[j];
+          if (row.length < 4) continue; // 데이터가 4열보다 적은 경우 생략
+
+          // 문서 이름을 1부터 40까지 숫자로 설정
+          await firestore.collection('users').doc(userId).collection('wordsBook${i + 1}').doc((j + 1).toString()).set({
+            'words': row[0],
+            'meaning_ko': row[1],
+            'example_en': row[2],
+            'example_cloze': row[3],
+            'example_ko': row[4],
+            'words_correct': false,
+            'sentence_correct': false,
+          });
+        }
+      } else {
+        print('Failed to load CSV file at ${fileUrls[i]}');
+      }
+    }
+  }
+
 
 // 오류 메시지를 다이얼로그로 표시하는 헬퍼 함수
   void _showErrorDialog(String message) {
@@ -150,7 +215,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 10),
               buildCustomTextField('닉네임', controller: _nicknameController),
               SizedBox(height: 20),
-              buildCustomTextField('아이디', controller: _emailController),
+              buildCustomTextField('이메일', controller: _emailController),
               SizedBox(height: 20),
               buildCustomTextField('비밀번호', controller: _passwordController, obscureText: true),
               SizedBox(height: 20),
