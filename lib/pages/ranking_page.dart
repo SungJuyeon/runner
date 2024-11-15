@@ -67,6 +67,10 @@ class _RankingPageState extends State<RankingPage>
 
   @override
   Widget build(BuildContext context) {
+    // MediaQuery로 화면 크기 정보를 가져오기
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('랭킹', style: TextStyle(color: Colors.black)),
@@ -164,7 +168,7 @@ class _RankingPageState extends State<RankingPage>
                         rankingData[1]['score'],
                         tabName,
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(width: 0),
                       buildHighRanker(
                         rankingData[0]['rank'],
                         rankingData[0]['name'],
@@ -172,7 +176,7 @@ class _RankingPageState extends State<RankingPage>
                         rankingData[0]['score'],
                         tabName,
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(width: 0),
                       buildHighRanker(
                         rankingData[2]['rank'],
                         rankingData[2]['name'],
@@ -182,7 +186,7 @@ class _RankingPageState extends State<RankingPage>
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   Expanded(
                     child: ListView.builder(
                       itemCount: rankingData.length,
@@ -217,11 +221,11 @@ class _RankingPageState extends State<RankingPage>
 
     // 랭크에 따른 이미지 크기 조정
     if (rank == 1) {
-      imageSize = 170;
+      imageSize = 160;
     } else if (rank == 2) {
-      imageSize = 120;
+      imageSize = 110;
     } else {
-      imageSize = 100;
+      imageSize = 90;
     }
 
     // 사용자 별 캐릭터 이미지 설정
@@ -434,7 +438,4 @@ class _RankingPageState extends State<RankingPage>
   String getCurrentTabName() {
     return tabNames[_tabController.index]; // Get tab name by index
   }
-
-
 }
-
