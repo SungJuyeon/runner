@@ -72,6 +72,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    // 닉네임 중복 체크
+    final nicknameExists = await _checkNicknameExists(nickname);
+    if (nicknameExists) {
+      _showErrorDialog("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => LoadingScreen()), // Navigate to loading screen
@@ -113,6 +120,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _showErrorDialog("회원가입 중 오류가 발생했습니다.");
     }
   }
+
+  Future<bool> _checkNicknameExists(String nickname) async {
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('nickname', isEqualTo: nickname)
+        .get();
+
+    return querySnapshot.docs.isNotEmpty; // 닉네임이 존재하면 true 반환
+  }
+
 
   Future<void> _createWordsCollection(String userId) async {
     final firestore = FirebaseFirestore.instance;
