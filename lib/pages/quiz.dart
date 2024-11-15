@@ -54,20 +54,30 @@ class Quizstate extends State<Quiz> {
       bool sentenceCorrect = data['sentence_correct'] ?? false; // sentence_correct 필드 확인
       String documentId = doc.id;
 
-      // 문제가 비어있지 않으면 리스트에 추가
+      // 문제가 비어있지 않은 경우 분류
       if (exampleCloze.isNotEmpty && correctAnswer.isNotEmpty) {
-        final question = Question(
-          questionEnglish: exampleCloze,
-          correctAnswer: correctAnswer,
-          exampleKo: exampleKo,
-          documentId: documentId,
-        );
-
-        // sentence_correct 상태에 따라 분류
         if (sentenceCorrect) {
-          trueQuestions.add(question); // `true`인 문제 저장
+          // true 리스트에 추가
+          trueQuestions.add(
+            Question(
+              questionEnglish: exampleCloze,
+              correctAnswer: correctAnswer,
+              exampleKo: exampleKo,
+              documentId: documentId,
+              isFromFalseList: false, // true 리스트에서 가져옴
+            ),
+          );
         } else {
-          falseQuestions.add(question); // `false`인 문제 저장
+          // false 리스트에 추가
+          falseQuestions.add(
+            Question(
+              questionEnglish: exampleCloze,
+              correctAnswer: correctAnswer,
+              exampleKo: exampleKo,
+              documentId: documentId,
+              isFromFalseList: true, // false 리스트에서 가져옴
+            ),
+          );
         }
       }
     }
@@ -118,16 +128,34 @@ class Quizstate extends State<Quiz> {
     // sentence_correct를 true로 업데이트
     await docRef.update({'sentence_correct': true});
 
-    // 사용자 문서의 해당 레벨 카운트 증가
-    final userDocRef =
-    FirebaseFirestore.instance.collection('users').doc(userId);
+    // 현재 문제가 false 리스트에서 온 경우에만 카운트 증가
+    if (questions[currentQuestion].isFromFalseList) {
+      final userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
 
-    String levelTrueField = 'level${widget.level}_true';
+      String levelTrueField = 'level${widget.level}_true';
+      await userDocRef.update({
+        levelTrueField: FieldValue.increment(1),
+      });
+    }
+  }
 
-    await userDocRef.update({
-      levelTrueField: FieldValue.increment(1),
+  Future<void> _saveTrueRecord() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    // 닉네임 가져오기
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    String nickname = userDoc['nickname'] ?? 'Unknown User';
+
+    // 맞춘 개수와 시간 저장
+    final trueRecordCollection = FirebaseFirestore.instance.collection('trueRecord');
+    await trueRecordCollection.add({
+      'nickname': nickname,
+      'count': correctCount, // 맞춘 개수
+      'time': Timestamp.now(), // 현재 시간 저장
     });
   }
+
 
   void _startTryAgainTimer() {
     Future.delayed(Duration(seconds: 3), () {
@@ -192,12 +220,12 @@ class Quizstate extends State<Quiz> {
                   '홈으로 돌아가기',
                   style: TextStyle(color: Colors.black),
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-
+                onPressed: () async {
+                  await _saveTrueRecord(); // 결과 저장 호출
                   if (correctCount >= 2) {
-                    _unlockNextLevel();  // 다음 레벨 해제
+                    _unlockNextLevel(); // 다음 레벨 해제
                   }
+                  Navigator.of(context).pop(); // 다이얼로그 닫기
                   Navigator.of(context).pop(true); // HomePage로 돌아가기
                 },
               ),
@@ -445,11 +473,13 @@ class Question {
   final String correctAnswer;
   final String exampleKo;
   final String documentId;
+  final bool isFromFalseList; // 문제 출처 추적(true였을 경우 count 안 되게)
 
   Question({
     required this.questionEnglish,
     required this.correctAnswer,
     required this.exampleKo,
     required this.documentId,
+    required this.isFromFalseList, // 초기화 필수
   });
 }
