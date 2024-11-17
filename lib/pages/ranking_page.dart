@@ -6,7 +6,7 @@ import 'package:runner/pages/getRankingData.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore 패키지
 //import 'package:runner/pages/loading.dart';
 import 'package:flutter/foundation.dart'; //로그 출력
-//import 'dart:html' as html; //웹 콘솔 출력
+import 'dart:html' as html; //웹 콘솔 출력
 
 // 로그에 태그를 추가해서 필터링할 수 있게하는 함수
 void printLog(String message, String tag) {
@@ -145,13 +145,31 @@ class _RankingPageState extends State<RankingPage>
           return Center(child: CircularProgressIndicator()); // 데이터 로딩 중일 때 로딩 인디케이터 표시
         } else if (snapshot.hasError) {
           return Center(child: Text('오류 발생: ${snapshot.error}')); // 오류 발생 시 메시지 표시
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('데이터가 없습니다.')); // 데이터가 없을 경우
+        //} else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          //return Center(child: Text('데이터가 없습니다.')); // 데이터가 없을 경우
         } else {
           final rankingData = snapshot.data!; // 데이터가 있을 경우
 
+          // 최소 3개의 데이터를 유지하기 위해 부족한 경우 빈 데이터를 추가
+          if (rankingData.length < 3) {
+            // 현재 있는 데이터의 개수에서 다음 rank 시작 번호를 계산
+            int nextRank = rankingData.length + 1;
+            html.window.console.log("데이터 부족으로 생성된 순위(nextRank): $nextRank");
+
+            rankingData.addAll(List.generate(
+              3 - rankingData.length, // 필요한 데이터 개수만큼 빈 데이터 생성
+                  (index) => {
+                'rank': nextRank + index, // rank 값은 1부터 차례로 설정
+                'name': '기록이 없습니다.',
+                'imgNum': 1,
+                'score': -1,
+              },
+            ));
+          }
+
           // rank 값을 숫자로 변환하여 정렬 (탭에 맞게 순위가 바뀌어야 하므로)
           rankingData.sort((a, b) => int.parse(a['rank'].toString()).compareTo(int.parse(b['rank'].toString())));
+          html.window.console.log("rankingData: $rankingData");
 
           return Stack(
             children: [
@@ -237,6 +255,35 @@ class _RankingPageState extends State<RankingPage>
       assetPath = 'assets/image/learnerRabbit.png';
     }
 
+    // score가 -1이면 투명 처리
+    if (score == -1) {
+      html.window.console.log("score가 -1로 조건문 안으로 들어옴(투명화)");
+      return Opacity(
+        opacity: 0.0, // 투명 처리
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: avatarRadius,
+              backgroundColor: bgColor,
+              child: Center(
+                child: Text(
+                  rank.toString(),
+                  style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+            Image.asset(assetPath, height: imageSize, width: imageSize),
+            SizedBox(height: 4),
+            Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            SizedBox(height: 4),
+            Text(score.toString(), style: TextStyle(fontSize: 16)),
+          ],
+        ),
+      );
+    }
+
+    // score가 -1이 아닌 경우 일반적인 처리
     return Column(
       children: [
         CircleAvatar(
@@ -266,6 +313,11 @@ class _RankingPageState extends State<RankingPage>
 
   // 일반 랭킹 리스트 빌드 함수
   Widget buildRankList(int rank, String name, int score, Color bgColor) {
+    // score가 -1이면 빈 공간 반환
+    if (score == -1) {
+      return SizedBox.shrink(); // 아무 것도 렌더링하지 않음
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: yellowColor,
@@ -375,8 +427,8 @@ class _RankingPageState extends State<RankingPage>
           return Center(child: CircularProgressIndicator()); // 데이터 로딩 중일 때 로딩 인디케이터 표시
         } else if (snapshot.hasError) {
           return Center(child: Text('오류 발생: ${snapshot.error}')); // 오류 발생 시 메시지 표시
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('데이터가 없습니다.')); // 데이터가 없을 경우
+        //} else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          //return Center(child: Text('데이터가 없습니다.')); // 데이터가 없을 경우
         } else {
           // snapshot.data는 랭킹 데이터
           List<Map<String, dynamic>> rankingData = snapshot.data!;
