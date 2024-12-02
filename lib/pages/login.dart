@@ -73,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(height: 100),
             Text(
               '어너러너',
               style: TextStyle(
