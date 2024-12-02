@@ -197,6 +197,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -208,8 +209,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         elevation: 0,
       ),
       backgroundColor: Color(0xFF66A2FD), // 배경색 설정
-      body: Center(
-        child: Padding(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -260,6 +262,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

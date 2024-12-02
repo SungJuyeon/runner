@@ -66,7 +66,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF66A2FD),
-      body: Padding(
+      resizeToAvoidBottomInset: true, // 키보드로 인한 overflow 방지
+      body: SingleChildScrollView(
+        child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -133,6 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );
