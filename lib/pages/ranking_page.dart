@@ -179,28 +179,32 @@ class _RankingPageState extends State<RankingPage>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      buildHighRanker(
-                        rankingData[1]['rank'],
-                        rankingData[1]['name'],
-                        rankingData[1]['imgNum'], // 이미지 경로 전달
-                        rankingData[1]['score'],
-                        tabName,
+                      Flexible(
+                        child: buildHighRanker(
+                          rankingData[1]['rank'],
+                          rankingData[1]['name'],
+                          rankingData[1]['imgNum'],
+                          rankingData[1]['score'],
+                          tabName,
+                        ),
                       ),
-                      SizedBox(width: 0),
-                      buildHighRanker(
-                        rankingData[0]['rank'],
-                        rankingData[0]['name'],
-                        rankingData[0]['imgNum'], // 이미지 경로 전달
-                        rankingData[0]['score'],
-                        tabName,
+                      Flexible(
+                        child: buildHighRanker(
+                          rankingData[0]['rank'],
+                          rankingData[0]['name'],
+                          rankingData[0]['imgNum'],
+                          rankingData[0]['score'],
+                          tabName,
+                        ),
                       ),
-                      SizedBox(width: 0),
-                      buildHighRanker(
-                        rankingData[2]['rank'],
-                        rankingData[2]['name'],
-                        rankingData[2]['imgNum'], // 이미지 경로 전달
-                        rankingData[2]['score'],
-                        tabName,
+                      Flexible(
+                        child: buildHighRanker(
+                          rankingData[2]['rank'],
+                          rankingData[2]['name'],
+                          rankingData[2]['imgNum'],
+                          rankingData[2]['score'],
+                          tabName,
+                        ),
                       ),
                     ],
                   ),
