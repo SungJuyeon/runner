@@ -76,9 +76,9 @@ class _MakingImageState extends State<MakingImage> {
 
       // 파일이 존재하는지 확인
       if (await imageFile.exists()) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('이미지가 저장되었습니다: $filePath')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('이미지가 저장되었습니다: $filePath')),
+        // );
 
         // 저장된 이미지를 인스타그램 등으로 공유
         await shareToInstagram(filePath);
