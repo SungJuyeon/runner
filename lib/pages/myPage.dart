@@ -165,7 +165,7 @@ class _MyPageState extends State<myPage> {
                     if (value) {
                       // Ensure initialization before showing the notification
                       await PushNotificationService.init();
-                      await PushNotificationService.showNotification();
+                      await PushNotificationService.scheduleDailyNotification();
                     }
                   },
                 ),
