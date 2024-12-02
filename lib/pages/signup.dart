@@ -309,17 +309,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget buildCharacterSelection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        buildCharacterOption(1, 'assets/image/learnerBear.png'),
-        SizedBox(width: 10),
-        buildCharacterOption(2, 'assets/image/learnerBrown.png'),
-        SizedBox(width: 10),
-        buildCharacterOption(3, 'assets/image/learnerRabbit.png'),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          buildCharacterOption(1, 'assets/image/learnerBear.png'),
+          SizedBox(width: 10),
+          buildCharacterOption(2, 'assets/image/learnerBrown.png'),
+          SizedBox(width: 10),
+          buildCharacterOption(3, 'assets/image/learnerRabbit.png'),
+        ],
+      ),
     );
   }
+
 
   Widget buildCharacterOption(int characterId, String assetPath) {
     return GestureDetector(
