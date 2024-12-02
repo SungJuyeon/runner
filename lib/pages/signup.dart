@@ -197,6 +197,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -208,8 +209,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         elevation: 0,
       ),
       backgroundColor: Color(0xFF66A2FD), // 배경색 설정
-      body: Center(
-        child: Padding(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -261,6 +263,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ],
           ),
+          ),
         ),
       ),
     );
@@ -306,17 +309,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget buildCharacterSelection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        buildCharacterOption(1, 'assets/image/learnerBear.png'),
-        SizedBox(width: 10),
-        buildCharacterOption(2, 'assets/image/learnerBrown.png'),
-        SizedBox(width: 10),
-        buildCharacterOption(3, 'assets/image/learnerRabbit.png'),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          buildCharacterOption(1, 'assets/image/learnerBear.png'),
+          SizedBox(width: 10),
+          buildCharacterOption(2, 'assets/image/learnerBrown.png'),
+          SizedBox(width: 10),
+          buildCharacterOption(3, 'assets/image/learnerRabbit.png'),
+        ],
+      ),
     );
   }
+
 
   Widget buildCharacterOption(int characterId, String assetPath) {
     return GestureDetector(

@@ -109,16 +109,3 @@
 //     );
 //   }
 // }
-//
-//
-// /*
-// ::: HOW TO USE :::
-//
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await PushNotificationService.init();
-//   await PushNotificationService.scheduleDailyNotification();
-//   runApp(MyApp());
-// }
-//
-//  */
