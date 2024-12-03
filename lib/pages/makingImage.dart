@@ -206,7 +206,7 @@ class _MakingImageState extends State<MakingImage> {
                               foregroundColor: Colors.black87,
                             ),
                             child: Text(
-                              '인스타에 공유하기',
+                              '공유하기',
                               style: TextStyle(
                                 color: Colors.black87,
                                 fontSize: 20,
