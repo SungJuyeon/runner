@@ -15,7 +15,7 @@ class Quiz extends StatefulWidget {
 class Quizstate extends State<Quiz> {
   final TextEditingController _controller = TextEditingController();
   int currentQuestion = 0;
-  int totalQuestions = 3; // 3문제만 출제하도록 설정
+  int totalQuestions = 20; // 20문제 출제하도록 설정
   int correctCount = 0;
   List<Question> questions = [];
   bool showResult = false;
@@ -34,11 +34,9 @@ class Quizstate extends State<Quiz> {
     if (userId == null) return;
 
     List<Question> loadedQuestions = [];
-    //false 먼저 랜덤 출제하기 위한 list
     List<Question> falseQuestions = [];
     List<Question> trueQuestions = [];
 
-    // Firestore의 사용자의 하위 컬렉션에 접근하여 선택한 레벨에 맞는 데이터 가져오기
     final wordsBookCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -51,63 +49,104 @@ class Quizstate extends State<Quiz> {
       String exampleCloze = data['example_cloze'] ?? '';
       String correctAnswer = data['words'] ?? '';
       String exampleKo = data['example_ko'] ?? '';
-      bool sentenceCorrect = data['sentence_correct'] ?? false; // sentence_correct 필드 확인
+      bool sentenceCorrect = data['sentence_correct'] ?? false;
       String documentId = doc.id;
 
-      // 문제가 비어있지 않은 경우 분류
       if (exampleCloze.isNotEmpty && correctAnswer.isNotEmpty) {
         if (sentenceCorrect) {
-          // true 리스트에 추가
-          trueQuestions.add(
-            Question(
-              questionEnglish: exampleCloze,
-              correctAnswer: correctAnswer,
-              exampleKo: exampleKo,
-              documentId: documentId,
-              isFromFalseList: false, // true 리스트에서 가져옴
-            ),
-          );
+          trueQuestions.add(Question(
+            questionEnglish: exampleCloze,
+            correctAnswer: correctAnswer,
+            exampleKo: exampleKo,
+            documentId: documentId,
+            isFromFalseList: false,
+          ));
         } else {
-          // false 리스트에 추가
-          falseQuestions.add(
-            Question(
-              questionEnglish: exampleCloze,
-              correctAnswer: correctAnswer,
-              exampleKo: exampleKo,
-              documentId: documentId,
-              isFromFalseList: true, // false 리스트에서 가져옴
-            ),
-          );
+          falseQuestions.add(Question(
+            questionEnglish: exampleCloze,
+            correctAnswer: correctAnswer,
+            exampleKo: exampleKo,
+            documentId: documentId,
+            isFromFalseList: true,
+          ));
         }
       }
     }
 
-    // false가 있는 경우 false 문제를 우선적으로 선택, 그렇지 않으면 true 문제 선택
-    loadedQuestions = falseQuestions.isNotEmpty ? falseQuestions : trueQuestions;
+    // 우선순위: falseQuestions를 먼저 가져오고, 남는 문제는 trueQuestions에서 채운다.
+    int remainingQuestions = totalQuestions - falseQuestions.length;
 
-    // Shuffle and select the first 3 questions
+    // falseQuestions에서 문제 추가
+    loadedQuestions.addAll(falseQuestions);
+
+    // 남은 문제를 trueQuestions에서 채우기
+    if (remainingQuestions > 0) {
+      trueQuestions.shuffle(Random());
+      loadedQuestions.addAll(trueQuestions.take(remainingQuestions));
+    }
+
+    // 문제 섞기
     loadedQuestions.shuffle(Random());
-    questions = loadedQuestions.take(totalQuestions).toList();
 
+    // 데이터 부족 시 방어
+    if (loadedQuestions.length < totalQuestions) {
+      totalQuestions = loadedQuestions.length; // 총 문제 수를 리스트 크기로 조정
+    }
+
+    questions = loadedQuestions.take(totalQuestions).toList();
     setState(() {});
   }
 
+
+
   void checkAnswer() async {
+    final isAnswerCorrect = _controller.text.trim().toLowerCase() == questions[currentQuestion].correctAnswer.toLowerCase();
     setState(() {
-      isCorrect = _controller.text.trim().toLowerCase() == questions[currentQuestion].correctAnswer.toLowerCase();
+      isCorrect = isAnswerCorrect;
       if (isCorrect) {
         correctCount++;
         showResult = true;
         isCorrectMessageVisible = true;
         tryAgainVisible = false;
-        _updateSentenceCorrect(questions[currentQuestion].documentId); // Firestore 업데이트
       } else {
         showResult = false;
         tryAgainVisible = true;
         _startTryAgainTimer();
       }
     });
+
+    // 정답이 맞았을 경우에만 Firestore 업데이트 수행
+    if (isAnswerCorrect) {
+      await _updateSentenceCorrect(questions[currentQuestion].documentId);
+    }
   }
+
+
+
+  //각 레벨에서 맞춘 문제 수가 30 이상일 경우 level up
+  Future<void> _updateLevelProgress() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+
+    String currentLevelField = 'level${widget.level}_true';
+
+    final snapshot = await userDoc.get();
+    if (!snapshot.exists) return;
+
+    // Firestore에서 현재 맞춘 개수 가져오기
+    int currentCount = snapshot[currentLevelField] ?? 0;
+
+    // 다음 레벨 해제 조건 확인
+    if (currentCount >= 30 && widget.level < 3) {
+      await userDoc.update({
+        'level': widget.level + 1, // 다음 레벨로 증가
+      });
+    }
+  }
+
+
 
   Future<void> _updateSentenceCorrect(String documentId) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -122,22 +161,24 @@ class Quizstate extends State<Quiz> {
     final docSnapshot = await docRef.get();
     bool sentenceCorrect = docSnapshot['sentence_correct'] ?? false;
 
-    // 이미 sentence_correct가 true인 경우 카운트 증가 없이 종료
+    // 이미 sentence_correct가 true인 경우 중복 업데이트 방지
     if (sentenceCorrect) return;
 
-    // sentence_correct를 true로 업데이트
-    await docRef.update({'sentence_correct': true});
-
-    // 현재 문제가 false 리스트에서 온 경우에만 카운트 증가
+    // 문제 출처가 falseQuestions일 경우에만 업데이트 수행
     if (questions[currentQuestion].isFromFalseList) {
-      final userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+      // sentence_correct를 true로 업데이트
+      await docRef.update({'sentence_correct': true});
 
+      // levelX_true 값을 1 증가
+      final userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
       String levelTrueField = 'level${widget.level}_true';
       await userDocRef.update({
         levelTrueField: FieldValue.increment(1),
       });
     }
   }
+
+
 
   Future<void> _saveTrueRecord() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -167,12 +208,12 @@ class Quizstate extends State<Quiz> {
 
   void nextQuestion() {
     setState(() {
-      if (currentQuestion < totalQuestions - 1) {
-        currentQuestion++; // 다음 문제로 이동
-        _controller.clear(); // TextField 빈칸으로 초기화
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        _controller.clear();
         isCorrect = false;
         showResult = false;
-        isCorrectMessageVisible = false; // 다음 문제로 넘어가면 정답 메시지 숨김
+        isCorrectMessageVisible = false;
       } else {
         _showScore();
         _controller.clear();
@@ -180,13 +221,32 @@ class Quizstate extends State<Quiz> {
     });
   }
 
-  void _showScore() {
+
+  void _showScore() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+    final snapshot = await userDoc.get();
+    if (!snapshot.exists) return;
+
+    String currentLevelField = 'level${widget.level}_true';
+    int currentLevelTrueCount = snapshot[currentLevelField] ?? 0;
+
+    // 다음 레벨 해제까지 남은 문제 수 계산
+    int remainingToNextLevel = max(0, 30 - currentLevelTrueCount);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Color(0xFFDBE4F8),
-          title: Center(child: Text('🎉문제 풀이 완료🎉', style: TextStyle(fontSize: 24, color: Color(0xFF3A88FA)))),
+          title: Center(
+            child: Text(
+              '🎉문제 풀이 완료🎉',
+              style: TextStyle(fontSize: 24, color: Color(0xFF3A88FA)),
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -195,15 +255,15 @@ class Quizstate extends State<Quiz> {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18),
               ),
-              if (correctCount >= 2)
+              if (currentLevelTrueCount >= 30)
                 Text(
                   '다음 레벨이 열렸습니다!',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18, color: Colors.green),
-                ),
-              if (correctCount < 2)
+                )
+              else
                 Text(
-                  '다음 레벨 잠금 해제에 실패했습니다.',
+                  '다음 레벨 해제까지 $remainingToNextLevel문제 남았습니다!',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18, color: Colors.red),
                 ),
@@ -222,9 +282,7 @@ class Quizstate extends State<Quiz> {
                 ),
                 onPressed: () async {
                   await _saveTrueRecord(); // 결과 저장 호출
-                  if (correctCount >= 2) {
-                    _unlockNextLevel(); // 다음 레벨 해제
-                  }
+                  await _updateLevelProgress(); // 진행도 업데이트 호출
                   Navigator.of(context).pop(); // 다이얼로그 닫기
                   Navigator.of(context).pop(true); // HomePage로 돌아가기
                 },
@@ -235,6 +293,8 @@ class Quizstate extends State<Quiz> {
       },
     );
   }
+
+
 
 
   void _unlockNextLevel() async {
