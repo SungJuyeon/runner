@@ -255,8 +255,10 @@ class Quizstate extends State<Quiz> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Color(0xFF7EB3FF),
-      body: Padding(
+      body: SingleChildScrollView(
+        child: Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 70.0),
         child: questions.isEmpty
             ? Center(child: CircularProgressIndicator())
@@ -462,6 +464,7 @@ class Quizstate extends State<Quiz> {
                 ),
               ),
           ],
+        ),
         ),
       ),
     );
