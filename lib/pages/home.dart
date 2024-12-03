@@ -46,12 +46,12 @@ class _HomePageState extends State<HomePage> {
       final level1True = userDoc['level1_true'] ?? 0;
       final level2True = userDoc['level2_true'] ?? 0;
 
-      // 현재 레벨 상태 설정: 각 레벨의 true 개수가 2 이상이면 잠금 해제
+      // 현재 레벨 상태 설정: 각 레벨의 true 개수가 30 이상이면 잠금 해제
       setState(() {
-        if (level1True >= 2) {
+        if (level1True >= 30) {
           isLocked[1] = false; // Level 2 잠금 해제
         }
-        if (level2True >= 2) {
+        if (level2True >= 30) {
           isLocked[2] = false; // Level 3 잠금 해제
         }
       });
