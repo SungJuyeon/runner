@@ -41,7 +41,7 @@ Future<int> getUserImgNum(String userId) async {
 // 일일 랭킹을 반환하는 함수
 Future<List<Map<String, dynamic>>> getDailyRanking() async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  DateTime now = DateTime.now();
+  DateTime now = DateTime(2024, 11, 29);
   DateTime startOfDay = getStartOfDay(now);
 
   // 일일 데이터 가져오기
@@ -93,7 +93,7 @@ Future<List<Map<String, dynamic>>> getDailyRanking() async {
 // 주간 랭킹을 반환하는 함수
 Future<List<Map<String, dynamic>>> getWeeklyRanking() async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  DateTime now = DateTime.now();
+  DateTime now = DateTime(2024, 11, 29);
   DateTime startOfWeek = getStartOfWeek(now);
 
   // 주간 데이터 가져오기
@@ -146,7 +146,7 @@ Future<List<Map<String, dynamic>>> getWeeklyRanking() async {
 // 월간 랭킹을 반환하는 함수
 Future<List<Map<String, dynamic>>> getMonthlyRanking() async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  DateTime now = DateTime.now();
+  DateTime now = DateTime(2024, 11, 29);
   DateTime startOfMonth = getStartOfMonth(now);
 
   // 월간 데이터 가져오기
