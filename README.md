@@ -64,3 +64,6 @@
 
 ⸻
 
+🎥 시연 영상
+<video src="고모프_어너러너_영상.mp4" controls width="600"></video>
+
