@@ -1,17 +1,66 @@
-# runner
+# 🏃‍♀️ 언어러너 (Language Runner)
+> 언어 학습을 ‘완주’하는 경험으로 바꾸다
+🎯 프로젝트 목표
 
-A new Flutter project.
+많은 사람들이 외국어 학습을 시작하지만,
+동기 부족과 반복 학습의 지루함으로 중도에 포기하는 경우가 많습니다.
 
+언어러너는 이러한 문제를 해결하기 위해 다음과 같은 방향을 제시합니다:
+- 🏆 랭킹 시스템 → 경쟁을 통한 동기 부여
+-	🤝 소셜 기능 → 함께하는 학습 경험
+-	🎮 게임화 요소(Gamification) → 재미있는 학습 환경
 
-## Getting Started
+외국어 학습을
+> “해야 하는 일” → “하고 싶은 활동” 으로 바꾸는 것이 목표입니다.
 
-This project is a starting point for a Flutter application.
+⸻
 
-A few resources to get you started if this is your first Flutter project:
+✨ 주요 기능
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+👤 1. 회원가입 및 로그인
+- 간편한 사용자 인증 및 계정 관리
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+📖 2. 빈칸 채우기 학습
+-	문장에서 빠진 단어를 입력하며 자연스럽게 학습
+
+🏆 3. 랭킹 시스템
+-	누적 점수를 기반으로 전체 사용자 순위 제공
+-	경쟁을 통해 학습 지속성 강화
+
+📤 4. 소셜 공유 기능
+-	자신의 랭킹을 이미지로 생성하여 SNS에 공유
+-	친구들과 학습 성과를 함께 나눔
+
+🔔 5. 학습 리마인드 알림
+-	일정 기간 미접속 시 학습 알림 제공
+-	꾸준한 학습 습관 형성 지원
+
+⸻
+
+🚀 기대 효과
+-	🎯 지속적인 학습 유도
+→ 점수 & 랭킹 기반 동기 강화
+-	🤝 사회적 학습 경험 제공
+→ SNS 공유를 통한 상호 자극
+-	🎮 재미있는 학습 환경
+→ 반복 학습의 지루함 감소
+-	📈 학습 트렌드 확산
+→ 외국어 공부를 하나의 SNS 문화로 발전
+
+⸻
+
+🎨 서비스 특징
+-	🏃‍♂️ 러닝(Running) 컨셉 디자인
+-	학습 = “완주하는 여정”
+-	목표를 향해 꾸준히 나아가는 경험 제공
+-	🔐 보안
+-	사용자 개인정보 보호를 위한 암호화 프로토콜 적용
+
+⸻
+
+📱 지원 환경
+	•	Android: 8.0 이상
+	•	iOS: 12.0 이상
+
+⸻
+
