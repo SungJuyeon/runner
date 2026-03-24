@@ -64,7 +64,11 @@
 
 ⸻
 
+<img width="225" height="460" alt="Group 38" src="https://github.com/user-attachments/assets/32ef668b-30a0-4aa6-87e2-4b3eb6e7d4dc" />
+
+⸻
+
 🎥 시연 영상
-[영상 보기](./고모프_어너러너_영상.mp4)
+[영상 다운로드](./고모프_어너러너_영상.mp4)
 <video src="고모프_어너러너_영상.mp4" controls width="600"></video>
 
